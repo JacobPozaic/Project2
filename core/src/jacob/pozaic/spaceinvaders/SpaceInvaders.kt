@@ -11,10 +11,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
  */
 
 private val batch = SpriteBatch()
+private val RL = ResourceLoader()
+private val EM = EnemyManager()
 
 class SpaceInvaders : ApplicationAdapter() {
-    private val RL = ResourceLoader()
-
     private var screen_width: Float = 480f
     private var screen_height: Float = 800f
     private val camera = OrthographicCamera()
@@ -23,17 +23,24 @@ class SpaceInvaders : ApplicationAdapter() {
     private var player: Player? = null
 
     override fun create() {
-        RL.LoadGameTextures()
-
         screen_width = Gdx.graphics.width.toFloat()
         screen_height = Gdx.graphics.height.toFloat()
 
+        // On game start
+        RL.LoadGameTextures()
         camera.setToOrtho(false, screen_width, screen_height)
         player = Player(RL.GetPlayer()!!)
     }
 
     override fun render() {
         // Input: Gdx.input.xxx
+
+        // AI
+        if (EM.noInvaders()) {/*TODO: next wave*/}
+        else if (EM.invadersWin()) {/*TODO: invaders win*/}
+        EM.step()
+
+        // Render frame
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
@@ -42,12 +49,17 @@ class SpaceInvaders : ApplicationAdapter() {
         batch.projectionMatrix = camera.combined
         batch.begin()
         drawEntity(player)
+        drawEnemies()
         batch.end()
     }
 
     override fun dispose() {
         batch.dispose()
         RL.DisposeGameTextures()
+    }
+
+    fun drawEnemies() {
+        EM.getAllInvaders().forEach{ drawEntity(it) }
     }
 
     private fun drawEntity(entity: Entity?) {
