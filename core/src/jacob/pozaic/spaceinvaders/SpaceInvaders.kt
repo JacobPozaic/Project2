@@ -4,32 +4,45 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
-/**
- * Created by Jacob on 1/22/2018.
- */
-
 private val batch = SpriteBatch()
-private val RL = ResourceLoader()
-private val EM = EnemyManager()
 
 class SpaceInvaders : ApplicationAdapter() {
-    private var screen_width: Float = 480f
-    private var screen_height: Float = 800f
+    // Most Android devices have a 16:10 aspect ratio, so use that as a scaling reference
+    private var screen_width: Float = 800F
+    private var screen_height: Float = 480F
+
+    // Assuming all textures are 128x128, downscaled 32x32 with no spacing will be 352 of 800 wide
+    private var texture_scale:Float = 0.25F
+    private var scale_ratio:Float = 0F
+
     private val camera = OrthographicCamera()
-    //TODO: use screen_size to create a ratio
+
+    private val RL = ResourceLoader()
+    private val EM = EnemyManager(RL)
 
     private var player: Player? = null
 
     override fun create() {
+        scale_ratio = Gdx.graphics.width.toFloat() / screen_width
+        texture_scale *= scale_ratio
+
         screen_width = Gdx.graphics.width.toFloat()
         screen_height = Gdx.graphics.height.toFloat()
+
+        EM.scale_ratio = scale_ratio
+        EM.texture_scale = texture_scale
+        EM.screen_height = screen_height
 
         // On game start
         RL.LoadGameTextures()
         camera.setToOrtho(false, screen_width, screen_height)
-        player = Player(RL.GetPlayer()!!)
+        //val stepsUntilDrop = 50
+        //val stepSize = (screen_width  - (11 * scaled down 128x128 image width)) / 50
+        player = Player()
+        EM.createWave()
     }
 
     override fun render() {
@@ -48,7 +61,8 @@ class SpaceInvaders : ApplicationAdapter() {
 
         batch.projectionMatrix = camera.combined
         batch.begin()
-        drawEntity(player)
+        batch.draw(RL.getTexture(Sprites.BACKGROUND), 0F, 0F, screen_width, screen_height)
+        drawPlayer()
         drawEnemies()
         batch.end()
     }
@@ -58,12 +72,15 @@ class SpaceInvaders : ApplicationAdapter() {
         RL.DisposeGameTextures()
     }
 
-    fun drawEnemies() {
-        EM.getAllInvaders().forEach{ drawEntity(it) }
+    private fun drawPlayer() {
+        if(player != null) drawEntity(RL.getTexture(Sprites.PLAYER), player as Entity)
     }
 
-    private fun drawEntity(entity: Entity?) {
-        if(entity != null)
-            batch.draw(entity.GetTexture(), entity.GetRectangle().getX(), entity.GetRectangle().getY())
+    private fun drawEnemies() {
+        EM.getAllInvaders().forEach{ drawEntity(RL.getInvaderTextures(it.type)[it.current_texture], it as Entity) }
+    }
+
+    private fun drawEntity(texture: Texture, entity: Entity) {
+        batch.draw(texture, entity.getRectangle().getX(), entity.getRectangle().getY(), texture.width * texture_scale, texture.height * texture_scale)
     }
 }

@@ -1,18 +1,12 @@
 package jacob.pozaic.spaceinvaders
 
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Rectangle
 
-/**
- * Created by Jacob on 1/22/2018.
- */
-
-open class Entity (
-        private val texture: Texture,
-        private val width: Float = 128f,
-        private val height: Float = 128f,
-        private val posX: Float = 0f,
-        private val posY: Float = 0f) {
+abstract class Entity (
+        width: Float = 0F,
+        height: Float = 0F,
+        posX: Float = 0F,
+        posY: Float = 0F) {
     private val pos = Rectangle()
 
     init {
@@ -22,11 +16,7 @@ open class Entity (
         pos.y = posY
     }
 
-    fun GetTexture(): Texture {
-        return texture
-    }
-
-    fun GetRectangle(): Rectangle {
+    fun getRectangle(): Rectangle {
         return pos
     }
 }
