@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.utils.TimeUtils
 
 private val batch = SpriteBatch()
 
@@ -14,52 +15,89 @@ class SpaceInvaders : ApplicationAdapter() {
     private var screen_width: Float = 800F
     private var screen_height: Float = 480F
 
-    // Assuming all textures are 128x128, downscaled 32x32 with no spacing will be 352 of 800 wide
+    // Assuming all textures are 128x128, downscaled 32x32 to fit an 800x480 screen
+    // the scale ratio will scale the sprites back up for larger screen resolutions
     private var texture_scale:Float = 0.25F
-    private var scale_ratio:Float = 0F
+    private var scale_ratio_width:Float = 0F
+    private var scale_ratio_height:Float = 0F
 
     private val camera = OrthographicCamera()
 
     private val RL = ResourceLoader()
-    private val EM = EnemyManager(RL)
+    private var EM: EnemyManager? = null
 
     private var player: Player? = null
 
+    private var game_state = GameState.SHOW_GAME_START
+
     override fun create() {
-        scale_ratio = Gdx.graphics.width.toFloat() / screen_width
-        texture_scale *= scale_ratio
+        scale_ratio_width = Gdx.graphics.width.toFloat() / screen_width
+        scale_ratio_height = Gdx.graphics.height.toFloat() / screen_height
+        texture_scale *= scale_ratio_width // Technically this wont scale things right height-wise, but it shouldn't be a huge issue
 
         screen_width = Gdx.graphics.width.toFloat()
         screen_height = Gdx.graphics.height.toFloat()
 
-        EM.scale_ratio = scale_ratio
-        EM.texture_scale = texture_scale
-        EM.screen_height = screen_height
+        EM = EnemyManager(RL, scale_ratio_width, scale_ratio_height, texture_scale, screen_width, screen_height)
 
-        // On game start
-        RL.LoadGameTextures()
+        // Initialize the camera
         camera.setToOrtho(false, screen_width, screen_height)
-        //val stepsUntilDrop = 50
-        //val stepSize = (screen_width  - (11 * scaled down 128x128 image width)) / 50
-        player = Player()
-        EM.createWave()
+
+        // Start the game
+        startMenu()
     }
 
-    override fun render() {
-        // Input: Gdx.input.xxx
+    private fun startMenu() {
+        game_state = GameState.SHOW_GAME_START
+        // TODO: display a start menu and wait for input before starting the game, move startGame() call to render loop
+        startGame()
+    }
+
+    private fun startGame() {
+        game_state = GameState.SHOW_GAME_PLAY
+        RL.loadGameTextures()
+        player = Player()
+    }
+
+    private fun pauseGame() {
+        game_state = GameState.SHOW_GAME_PAUSE
+        // TODO:
+    }
+
+    private fun gameOver() {
+        game_state = GameState.SHOW_GAME_OVER
+        // TODO:
+    }
+
+    private fun renderStartMenu() {
+        // TODO:
+    }
+
+    // The last time step was called
+    private var last_step_time = 0L
+    // The time between each step
+    private var step_time = 100L //TODO: less enemies increases speed, also make this 1000L when not debugging
+
+    private fun renderGamePlay() {
+        // TODO: Input: Gdx.input.xxx
+        /* TODO:
+        if(input = pause button) pauseGame()
+        */
 
         // AI
-        if (EM.noInvaders()) {/*TODO: next wave*/}
-        else if (EM.invadersWin()) {/*TODO: invaders win*/}
-        EM.step()
+        EM!!.createWave()
 
-        // Render frame
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+        // Step when it is appropriate to do so
+        if (TimeUtils.timeSinceMillis(last_step_time) >= step_time) {
+            last_step_time = TimeUtils.millis()
+            EM!!.step()
+        }
 
-        camera.update()
+        //TODO: sounds
 
-        batch.projectionMatrix = camera.combined
+        // Lose condition
+        if (EM!!.invadersWin()) gameOver()
+
         batch.begin()
         batch.draw(RL.getTexture(Sprites.BACKGROUND), 0F, 0F, screen_width, screen_height)
         drawPlayer()
@@ -67,9 +105,38 @@ class SpaceInvaders : ApplicationAdapter() {
         batch.end()
     }
 
+    private fun renderGamePause() {
+        //TODO:
+    }
+
+    private fun renderGameOver() {
+        RL.disposeGameTextures()
+        //TODO:
+    }
+
+    override fun render() {
+        // Render frame
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+
+        // Update camera
+        camera.update()
+
+        // Update the batch projection
+        batch.projectionMatrix = camera.combined
+
+        // Determine what render path to use
+        when(game_state) {
+            GameState.SHOW_GAME_START -> renderStartMenu()
+            GameState.SHOW_GAME_PLAY  -> renderGamePlay()
+            GameState.SHOW_GAME_PAUSE -> renderGamePause()
+            GameState.SHOW_GAME_OVER  -> renderGameOver()
+        }
+    }
+
     override fun dispose() {
         batch.dispose()
-        RL.DisposeGameTextures()
+        RL.disposeGameTextures()
     }
 
     private fun drawPlayer() {
@@ -77,7 +144,7 @@ class SpaceInvaders : ApplicationAdapter() {
     }
 
     private fun drawEnemies() {
-        EM.getAllInvaders().forEach{ drawEntity(RL.getInvaderTextures(it.type)[it.current_texture], it as Entity) }
+        EM!!.getAllInvaders().forEach{ drawEntity(RL.getInvaderTextures(it.type)[it.current_texture], it as Entity) }
     }
 
     private fun drawEntity(texture: Texture, entity: Entity) {
