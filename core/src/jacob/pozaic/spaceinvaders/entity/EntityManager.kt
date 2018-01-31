@@ -1,6 +1,9 @@
-package jacob.pozaic.spaceinvaders
+package jacob.pozaic.spaceinvaders.entity
 
-class EnemyManager (private val RL: ResourceLoader,
+import jacob.pozaic.spaceinvaders.resources.ResourceLoader
+import jacob.pozaic.spaceinvaders.resources.Sprites
+
+class EntityManager(private val RL: ResourceLoader,
                     scale_ratio_width: Float,
                     scale_ratio_height: Float,
                     private val texture_scale: Float,
@@ -24,6 +27,15 @@ class EnemyManager (private val RL: ResourceLoader,
 
     // true if the invaders have reached the ground
     private var game_over = false
+
+    // The player
+    private var player: Player? = null
+    private val player_width = RL.getTexture(Sprites.PLAYER).width * texture_scale / 2
+
+    fun init() {
+        player = Player(posX = (screen_width / 2) - player_width)
+        createWave()
+    }
 
     /**
      * If no invaders are left, create a new wave of invaders
@@ -57,16 +69,41 @@ class EnemyManager (private val RL: ResourceLoader,
                     val posX = (x * texture_width) + (spacing_offset * x) + x_offset
                     val posY = screen_height - texture_height - y_offset - ((y * texture_height) + (spacing_offset * 0.5F * y))
 
-                    invaders.add(Invader(texture_width, posX , posY, invader_type, step_distance, drop_distance))
+                    invaders.add(Invader(texture_width, posX, posY, invader_type, step_distance, drop_distance))
                 }
             }
         }
     }
 
+    // The degree to which the screen should be tilted before moving in that direction
+    private val tilt_sensitivity = 1F
+    // The speed at which the player moves
+    private val player_move_speed = 10F
+
+    fun stepPlayer(gyro_angle: Float) {
+        val location = player!!.getX()
+
+        when{
+            gyro_angle > tilt_sensitivity ->
+                if(location >= screen_right_cutoff) return
+                else player!!.step(player_move_speed)
+            gyro_angle < -tilt_sensitivity ->
+                if(location <= screen_left_cutoff) return
+                else player!!.step(-player_move_speed)
+            else -> 0F
+        }
+    }
+
+    // Player shoots a projectile
+    fun playerShoot(){
+        val location = player!!.getX() + player_width
+        //TODO: create projectile at position, move it and check collision with invader
+    }
+
     // Should the next step move the invaders to the right
     private var move_direction_right = true
 
-    fun step() {
+    fun stepEnemy() {
         var flip_direction = false
         invaders.forEach {
             val location = it.step(move_direction_right)
@@ -87,6 +124,10 @@ class EnemyManager (private val RL: ResourceLoader,
 
     fun invadersWin(): Boolean {
         return game_over
+    }
+
+    fun getPlayer(): Player {
+        return player!!
     }
 
     fun getAllInvaders(): ArrayList<Invader> {

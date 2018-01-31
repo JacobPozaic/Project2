@@ -1,4 +1,4 @@
-package jacob.pozaic.spaceinvaders
+package jacob.pozaic.spaceinvaders.entity
 
 /**
  * Created by Jacob on 1/24/2018.

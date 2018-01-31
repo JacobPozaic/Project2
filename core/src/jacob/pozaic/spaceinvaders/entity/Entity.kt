@@ -1,4 +1,4 @@
-package jacob.pozaic.spaceinvaders
+package jacob.pozaic.spaceinvaders.entity
 
 import com.badlogic.gdx.math.Rectangle
 
@@ -16,7 +16,7 @@ abstract class Entity (
         pos.y = posY
     }
 
-    fun getRectangle(): Rectangle {
+    fun getRectangle(): Rectangle { // TODO: hide rectangle completely
         return pos
     }
 }

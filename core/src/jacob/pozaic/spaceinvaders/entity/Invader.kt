@@ -1,4 +1,4 @@
-package jacob.pozaic.spaceinvaders
+package jacob.pozaic.spaceinvaders.entity
 
 class Invader(
         size: Float = 0F,
