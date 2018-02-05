@@ -9,6 +9,8 @@ abstract class Entity (
         posY: Float = 0F) {
     private val pos = Rectangle()
 
+    data class Position(val x: Double, val y: Double)
+
     init {
         pos.width = width
         pos.height = height
@@ -16,7 +18,14 @@ abstract class Entity (
         pos.y = posY
     }
 
-    fun getRectangle(): Rectangle { // TODO: hide rectangle completely
-        return pos
-    }
+    fun getCenter(): Position = Position(
+            pos.x.toDouble() + (pos.width / 2),
+            pos.y.toDouble() + (pos.height / 2)
+    )
+
+    protected fun getRectangle(): Rectangle = pos
+
+    fun getX() = pos.x
+
+    fun getY() = pos.y
 }

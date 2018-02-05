@@ -1,38 +1,70 @@
 package jacob.pozaic.spaceinvaders.entity
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.resources.ResourceLoader
 import jacob.pozaic.spaceinvaders.resources.Sprites
 
-class EntityManager(private val RL: ResourceLoader,
+class EntityManager(RL: ResourceLoader,
                     scale_ratio_width: Float,
                     scale_ratio_height: Float,
-                    private val texture_scale: Float,
+                    texture_scale: Float,
                     private val screen_width: Float,
                     private val screen_height: Float) {
     // Constant offsets, scaled to the screen size
-    private val x_offset = 20 * scale_ratio_width
-    private val y_offset = 50 * scale_ratio_height
-    private val y_offset_lose = 100 * scale_ratio_height
-    private val spacing_offset = 10 * scale_ratio_width
-    private val drop_distance = 20 * scale_ratio_height
+    private val x_offset       = 20F  * scale_ratio_width
+    private val spacing_offset = 10F  * scale_ratio_width
+    private val player_speed   = 120F * scale_ratio_width
+    private val y_offset       = 50F  * scale_ratio_height
+    private val y_offset_lose  = 100F * scale_ratio_height
+    private val drop_distance  = 20F  * scale_ratio_height
+    private val player_projectile_speed = 150F * scale_ratio_height
+    // TODO: enemy projectile speed differs based on what type it is
+
+    // Get the size of the texture after scaling it
+    private val default_texture = RL.getTexture(Sprites.FIGHTER_1)
+    private val texture_width   = default_texture.width * texture_scale
+    private val texture_height  = default_texture.height * texture_scale
+
+    private val player_width = RL.getTexture(Sprites.PLAYER).width * texture_scale / 2
+
+    private val collision_size = RL.getTexture(Sprites.PLAYER).width * texture_scale
+
+    // The size of projectiles
+    private val projectile_size = RL.getTexture(Sprites.PLAYER_PROJECTILE).width * texture_scale
 
     // A list of every invader currently alive
     private var invaders = ArrayList<Invader>()
 
-    // The pixel location on the x axis where the invaders should drop and reverse direction
-    private var screen_left_cutoff = 0F
-    private var screen_right_cutoff = 0F
-    // The pixel location on the y axis where the invaders win if reached
-    private var invader_win_distance = 0F
+    // A list of each projectile currently on screen
+    private val projectiles = ArrayList<Projectile>()
 
-    // true if the invaders have reached the ground
+    // The pixel location on the x axis where the invaders should drop and reverse direction
+    private val screen_left_cutoff = x_offset
+    private val screen_right_cutoff = screen_width - (x_offset + texture_width)
+    private val screen_top_cutoff = screen_height
+
+    // The pixel location on the y axis where the invaders win if reached
+    private val invader_win_distance = y_offset_lose + texture_height
+
+    // True if the invaders have reached the ground
     private var game_over = false
 
     // The player
     private var player: Player? = null
-    private val player_width = RL.getTexture(Sprites.PLAYER).width * texture_scale / 2
+
+    // If the player has shot, this will store the entity for the projectile
+    private var player_projectile: Projectile? = null
 
     fun init() {
+        val step_distance = (screen_width - (11F * (texture_width + spacing_offset))) / 38F
+
+        // Set the movement patterns for each type of invader
+        setMovement(InvaderType.FIGHTER, step_distance, drop_distance)
+        setMovement(InvaderType.BOMBER, step_distance, drop_distance)
+        setMovement(InvaderType.MOTHER_SHIP, step_distance, drop_distance)
+
+        // Create new player in the center of the screen
         player = Player(posX = (screen_width / 2) - player_width)
         createWave()
     }
@@ -52,85 +84,128 @@ class EntityManager(private val RL: ResourceLoader,
                 }
 
                 for(x in 0..10) {
-                    // Get the size of the texture after scaling it
-                    val default_texture = RL.getInvaderTextures(invader_type)[0]
-                    val texture_width   = default_texture.width * texture_scale
-                    val texture_height  = default_texture.height * texture_scale
-                    val step_distance   = (screen_width  - (11F * (texture_width + spacing_offset))) / 40F
-
-                    // if cutoffs haven't been calculated yet then do so
-                    if(screen_left_cutoff == 0F) {
-                        screen_left_cutoff  = x_offset
-                        screen_right_cutoff = screen_width - (x_offset + texture_width)
-                        invader_win_distance = y_offset_lose + texture_height
-                    }
-
                     // Calculate the position of the new Invader in scaled space
-                    val posX = (x * texture_width) + (spacing_offset * x) + x_offset
-                    val posY = screen_height - texture_height - y_offset - ((y * texture_height) + (spacing_offset * 0.5F * y))
-
-                    invaders.add(Invader(texture_width, posX, posY, invader_type, step_distance, drop_distance))
+                    val posX = (texture_width * x) + (spacing_offset * x) + x_offset
+                    val posY = screen_height - texture_height - y_offset - ((texture_height * y) + (spacing_offset * 0.5F * y))
+                    // Create a new invader
+                    invaders.add(Invader(texture_width, posX, posY, invader_type))
                 }
             }
         }
     }
 
-    // The degree to which the screen should be tilted before moving in that direction
-    private val tilt_sensitivity = 1F
-    // The speed at which the player moves
-    private val player_move_speed = 10F
-
-    fun stepPlayer(gyro_angle: Float) {
-        val location = player!!.getX()
-
-        when{
-            gyro_angle > tilt_sensitivity ->
-                if(location >= screen_right_cutoff) return
-                else player!!.step(player_move_speed)
-            gyro_angle < -tilt_sensitivity ->
-                if(location <= screen_left_cutoff) return
-                else player!!.step(-player_move_speed)
-            else -> 0F
-        }
-    }
-
-    // Player shoots a projectile
-    fun playerShoot(){
-        val location = player!!.getX() + player_width
-        //TODO: create projectile at position, move it and check collision with invader
-    }
+    // The last time step was called
+    private var last_enemy_step_time = 0L
+    // The time between each step
+    private val enemy_step_delay = 600L //TODO: less enemies increases speed, also make this 700L when not debugging
 
     // Should the next step move the invaders to the right
     private var move_direction_right = true
 
-    fun stepEnemy() {
-        var flip_direction = false
-        invaders.forEach {
-            val location = it.step(move_direction_right)
-            if((move_direction_right && location >= screen_right_cutoff) || (!move_direction_right && location <= screen_left_cutoff))
-                flip_direction = true
-        }
-        if(flip_direction) {
-            invaders.forEach {
-                val location = it.drop()
-                if(location <= invader_win_distance)
-                    game_over = true
+    // The degree to which the screen should be tilted before moving in that direction
+    private val tilt_sensitivity = 1F
+
+    private val projectiles_destroyed = ArrayList<Projectile>()
+
+    private var flip_direction = false
+
+    fun update() {
+        // Move the enemies if it has been long enough
+        if (TimeUtils.timeSinceMillis(last_enemy_step_time) >= enemy_step_delay) {
+            last_enemy_step_time = TimeUtils.millis()
+
+            if(flip_direction) {
+                flip_direction = false
+                invaders.forEach {
+                    val location = it.drop()
+                    if(location <= invader_win_distance)
+                        game_over = true
+                }
+                move_direction_right = move_direction_right.not()
+            } else {
+                invaders.forEach {
+                    val location = it.step(move_direction_right)
+                    if((move_direction_right && location >= screen_right_cutoff) ||
+                            (!move_direction_right && location <= screen_left_cutoff))
+                        flip_direction = true
+                }
             }
-            move_direction_right = move_direction_right.not()
+
+            // TODO: cycle invader texture (fix textures first)
         }
 
-        //TODO: cycle invader texture (fix textures first)
+        // Move the player
+        val gyro_angle = Gdx.input.accelerometerY
+        val location = player!!.getX()
+
+        when{
+            gyro_angle > tilt_sensitivity ->
+                if(location < screen_right_cutoff)
+                    player!!.step(player_speed * Gdx.graphics.deltaTime)
+            gyro_angle < -tilt_sensitivity ->
+                if(location > screen_left_cutoff)
+                    player!!.step(-player_speed * Gdx.graphics.deltaTime)
+        }
+
+        // Move the players projectile if one exists
+        if(player_projectile != null) {
+            player_projectile!!.step(player_projectile_speed * Gdx.graphics.deltaTime)
+        }
+
+        // TODO: step invader projectiles
+
+        // Check for any collisions in projectiles
+        projectiles.forEach nextProjectile@{p ->
+            when {
+                p.type != Sprites.PLAYER_PROJECTILE ->
+                    when {
+                        p.getY() <= player!!.getY() -> projectiles_destroyed.add(p) // Invader projectile left screen
+                        p.distanceTo(player!!) <= collision_size -> {               // Invader projectile hit player
+                            projectiles_destroyed.add(p)
+                            // TODO: player loses life
+                        } else -> projectiles.forEach { p_invader ->                // Projectile collides with another projectile
+                            if (p.distanceTo(p_invader) <= collision_size)
+                                projectiles.addAll(arrayOf(p, p_invader))
+                        }
+                    }
+                p.getY() >= screen_top_cutoff -> projectiles_destroyed.add(p)       // Player projectile left screen
+                else -> invaders.forEach {invader ->                                // Invader collision
+                    if(p.distanceTo(invader) <= collision_size) {
+                        projectiles_destroyed.add(p)
+                        invaders.remove(invader)
+                        // TODO: add score
+                        return@nextProjectile
+                    }
+                }
+            }
+        }
+        // Remove the destroyed projectiles and then clear the list
+        projectiles_destroyed.forEach {
+            if(projectiles.contains(it)) {
+                if (it.type == Sprites.PLAYER_PROJECTILE)
+                    player_projectile = null
+                projectiles.remove(it)
+            }
+        }
+        projectiles_destroyed.clear()
     }
 
-    fun invadersWin(): Boolean {
-        return game_over
+    // Player shoots a projectile
+    fun playerShoot(){
+        if(player_projectile == null) {
+            val location = player!!.getX() + player_width
+            player_projectile = Projectile(projectile_size, location, player!!.getY(), Sprites.PLAYER_PROJECTILE)
+            projectiles.add(player_projectile!!)
+            // TODO: projectile animate
+            // TODO: check collision with invader or another projectile
+        }
     }
 
-    fun getPlayer(): Player {
-        return player!!
-    }
+    fun invadersWin(): Boolean = game_over
 
-    fun getAllInvaders(): ArrayList<Invader> {
-        return invaders
-    }
+    fun getPlayer(): Player = player!!
+
+    fun getAllInvaders(): ArrayList<Invader> = invaders
+
+    fun getProjectiles(): ArrayList<Projectile> = projectiles
 }
