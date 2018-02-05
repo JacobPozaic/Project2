@@ -197,7 +197,6 @@ class EntityManager(RL: ResourceLoader,
             player_projectile = Projectile(projectile_size, location, player!!.getY(), Sprites.PLAYER_PROJECTILE)
             projectiles.add(player_projectile!!)
             // TODO: projectile animate
-            // TODO: check collision with invader or another projectile
         }
     }
 
