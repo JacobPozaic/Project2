@@ -2,30 +2,14 @@ package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import jacob.pozaic.spaceinvaders.entity.Entity
 import jacob.pozaic.spaceinvaders.resources.Sprites
-
-private val batch = SpriteBatch()
-private val camera = OrthographicCamera()
-
-internal fun initRender() {
-    // Initialize the camera
-    camera.setToOrtho(false, screen_width, screen_height)
-}
 
 internal fun renderLoop() {
     // Render frame
     Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
-    // Update camera
-    camera.update()
-
-    // Update the batch projection
-    batch.projectionMatrix = camera.combined
 
     // Determine what render path to use
     when(game_state) {
@@ -37,10 +21,14 @@ internal fun renderLoop() {
 }
 
 private fun startMenuRender() {
-    // TODO:
+    stg_start.viewport.apply()
+    stg_start.draw()
 }
 
 private fun gamePlayRender() {
+    stg_game.viewport.apply()
+    stg_game.draw()
+
     batch.begin()
 
     // Draw the background
@@ -77,6 +65,6 @@ private fun dispose() {
 
 private fun drawEntity(texture: Texture, entity: Entity) {
     batch.draw(texture, entity.getX(), entity.getY(),
-            texture.width * scale_ratio_width,
-            texture.height * scale_ratio_height)
+            texture.width * texture_scale,
+            texture.height * texture_scale)
 }

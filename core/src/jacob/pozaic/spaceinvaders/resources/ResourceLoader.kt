@@ -45,4 +45,8 @@ class ResourceLoader {
             InvaderType.MOTHER_SHIP -> listOf(textures[MOTHER_SHIP_1]!!, textures[MOTHER_SHIP_2]!!)
         }
     }
+
+    fun disposeAll() {
+
+    }
 }

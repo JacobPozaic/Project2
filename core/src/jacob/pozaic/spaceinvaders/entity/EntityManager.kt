@@ -6,19 +6,17 @@ import jacob.pozaic.spaceinvaders.resources.ResourceLoader
 import jacob.pozaic.spaceinvaders.resources.Sprites
 
 class EntityManager(RL: ResourceLoader,
-                    scale_ratio_width: Float,
-                    scale_ratio_height: Float,
                     texture_scale: Float,
                     private val screen_width: Float,
                     private val screen_height: Float) {
     // Constant offsets, scaled to the screen size
-    private val x_offset       = 20F  * scale_ratio_width
-    private val spacing_offset = 10F  * scale_ratio_width
-    private val player_speed   = 120F * scale_ratio_width
-    private val y_offset       = 50F  * scale_ratio_height
-    private val y_offset_lose  = 100F * scale_ratio_height
-    private val drop_distance  = 20F  * scale_ratio_height
-    private val player_projectile_speed = 150F * scale_ratio_height
+    private val x_offset       = 20F
+    private val spacing_offset = 10F
+    private val player_speed   = 120F
+    private val y_offset       = 50F
+    private val y_offset_lose  = 100F
+    private val drop_distance  = 20F
+    private val player_projectile_speed = 150F
     // TODO: enemy projectile speed differs based on what type it is
 
     // Get the size of the texture after scaling it
