@@ -1,11 +1,15 @@
 package jacob.pozaic.spaceinvaders.entity
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion
+
 class Player(
-        size: Float = 0F,
-        posX: Float = 0F,
-        posY: Float = 0F): Entity(size, size, posX, posY) {
+        tex: TextureRegion,
+        posX: Int,
+        posY: Int,
+        scaleWidth: Float,
+        scaleHeight: Float): Entity(tex, posX, posY, tex.regionWidth, tex.regionHeight, scaleWidth, scaleHeight) {
 
     fun step(gyro_angle: Float) {
-        getRectangle().setX(getRectangle().getX() + gyro_angle)
+        x += gyro_angle
     }
 }

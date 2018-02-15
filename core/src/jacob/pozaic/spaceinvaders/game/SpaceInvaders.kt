@@ -31,12 +31,15 @@ class SpaceInvaders : ApplicationAdapter() {
         // Create the input handler and set it
         Gdx.input.inputProcessor = input_processors
 
+        // Load textures
+        RL.loadGameTextures()
+
         // Create the Entity Manager
         EM = EntityManager(RL, texture_scale, screen_width, screen_height)
 
         // Test accelerometer availability
         if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {
-            //TODO: tell user accelerometer was not found and close app
+            //TODO: draw arrows and add listeners to move the player
         }
 
         // Start the game

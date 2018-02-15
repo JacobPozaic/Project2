@@ -1,20 +1,23 @@
 package jacob.pozaic.spaceinvaders.entity
 
-import jacob.pozaic.spaceinvaders.resources.Sprites
+import com.badlogic.gdx.graphics.g2d.TextureRegion
+import jacob.pozaic.spaceinvaders.resources.ProjectileType
 
 class Projectile(
-        size: Float = 0F,
-        posX: Float = 0F,
-        posY: Float = 0F,
-        val type: Sprites): Entity(size, size, posX, posY) {
+        tex: TextureRegion,
+        posX: Int,
+        posY: Int,
+        scaleWidth: Float,
+        scaleHeight: Float,
+        val type: ProjectileType): Entity(tex, posX, posY, tex.regionWidth, tex.regionHeight, scaleWidth, scaleHeight) {
 
     fun step(distance: Float) {
-        getRectangle().setY(getY() + distance)
+        y += distance
     }
 
-    fun distanceTo(target: Entity): Float {
+    fun collidesWith(target: Entity): Boolean {
         val center = getCenter()
         val other = target.getCenter()
-        return Math.sqrt(Math.pow(center.x - other.x, 2.0) + Math.pow(center.y - other.y, 2.0)).toFloat()
+        return (Math.sqrt(Math.pow(center.x - other.x, 2.0) + Math.pow(center.y - other.y, 2.0))).toFloat() <= width
     }
 }
