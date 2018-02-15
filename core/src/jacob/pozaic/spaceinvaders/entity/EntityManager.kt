@@ -110,7 +110,7 @@ class EntityManager(private val RL: ResourceLoader,
 
             // Cycle texture for each invader
             invaders.forEach {
-                it.setRegion(RL.nextTexture(it))
+                it.setRegion(RL.nextTexture(it)) 
             }
 
             // Move the invaders
