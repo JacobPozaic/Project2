@@ -35,7 +35,7 @@ class SpaceInvaders : ApplicationAdapter() {
         RL.loadGameTextures()
 
         // Create the Entity Manager
-        EM = EntityManager(RL, texture_scale, screen_width, screen_height)
+        EM = EntityManager(RL, texture_scale, screen_width, screen_height, stg_game)
 
         // Test accelerometer availability
         if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {

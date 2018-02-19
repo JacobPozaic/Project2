@@ -30,28 +30,20 @@ private fun optionMenuRender() {
 }
 
 private fun gamePlayRender() {
-    stg_game.viewport.apply()
-    stg_game.draw()
-
     batch.begin()
 
     // Draw the background
     batch.draw(RL.getTexture(Sprites.BACKGROUND), 0F, 0F, screen_width, screen_height)
 
-    // Draw the invaders
-    EM!!.getAllInvaders().forEach{ it.draw(batch) }
-
-    // Draw the player
-    EM!!.getPlayer().draw(batch)
-
-    // Draw projectiles
-    EM!!.getProjectiles().forEach { it.draw(batch) }
-
     batch.end()
+
+    stg_game.viewport.apply()
+    stg_game.draw()
 }
 
 private fun gamePauseRender() {
-    //TODO:
+    gamePlayRender()
+    //TODO: render pause menu stuff
 }
 
 private fun gameOverRender() {

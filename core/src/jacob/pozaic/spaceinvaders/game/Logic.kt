@@ -1,5 +1,7 @@
 package jacob.pozaic.spaceinvaders.game
 
+import com.badlogic.gdx.Gdx
+
 internal fun logicLoop() {
     // Determine what logic path to use
     when(game_state) {
@@ -15,11 +17,10 @@ private fun gamePlayLogic() {
 
     // TODO: sounds
 
-    // AI TODO: move this code to EntityManager
-    EM!!.createWave()
-
     // Update locations
     EM!!.update()
+
+    stg_game.act(Gdx.graphics.deltaTime)
 }
 
 private fun gamePauseLogic() {

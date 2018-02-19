@@ -5,14 +5,14 @@ import jacob.pozaic.spaceinvaders.resources.ProjectileType
 
 class Projectile(
         tex: TextureRegion,
-        posX: Int,
-        posY: Int,
+        posX: Float,
+        posY: Float,
         scaleWidth: Float,
         scaleHeight: Float,
-        val type: ProjectileType): Entity(tex, posX, posY, tex.regionWidth, tex.regionHeight, scaleWidth, scaleHeight) {
+        val type: ProjectileType): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
 
     fun step(distance: Float) {
-        y += distance
+        setPos(getX(), getY() + distance)
     }
 
     fun collidesWith(target: Entity): Boolean {

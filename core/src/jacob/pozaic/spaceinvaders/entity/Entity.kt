@@ -2,24 +2,45 @@ package jacob.pozaic.spaceinvaders.entity
 
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.graphics.g2d.Batch
+import jacob.pozaic.spaceinvaders.ai.Pos
 
 abstract class Entity (
         tex: TextureRegion,
-        posX: Int,
-        posY: Int,
-        width: Int,
-        height: Int,
+        posX: Float,
+        posY: Float,
         scaleWidth: Float,
-        scaleHeight: Float): Sprite(tex, posX, posY, width, height) {
+        scaleHeight: Float): Actor() {
+
+    private val sprite = Sprite(tex)
 
     init {
-        setScale(scaleWidth, scaleHeight)
+        sprite.setScale(scaleWidth, scaleHeight)
+        setPos(posX, posY)
     }
 
-    data class Position(val x: Double, val y: Double)
+    fun setPos(pos: Pos) {
+        setPos(pos.x, pos.y)
+    }
 
-    fun getCenter(): Position = Position(
-            x.toDouble() + (width / 2),
-            y.toDouble() + (height / 2)
+    fun setPos(x: Float, y: Float) {
+        sprite.setPosition(x, y)
+        setBounds(sprite.x, sprite.y, sprite.width, sprite.height)
+    }
+
+    override fun getX() = sprite.x
+
+    override fun getY() = sprite.y
+
+    fun getPos() = Pos(sprite.x, sprite.y)
+
+    override fun draw(batch: Batch?, parentAlpha: Float) {
+        sprite.draw(batch)
+    }
+
+    fun getCenter(): Pos = Pos(
+            sprite.x + (sprite.width / 2),
+            sprite.y + (sprite.height / 2)
     )
 }

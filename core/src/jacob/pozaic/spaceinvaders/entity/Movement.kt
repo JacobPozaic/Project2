@@ -1,13 +1,15 @@
 package jacob.pozaic.spaceinvaders.entity
 
-private data class MoveParameters(val step_distance: Float, val drop_distance: Float)
+// The degree to which the screen should be tilted before moving in that direction
+const val tilt_sensitivity = 1F
 
-private val move_map = HashMap<InvaderType, MoveParameters>()
+// The speed the player moves at
+const val player_speed = 120F
 
-fun setMovement(invader_type: InvaderType, step_distance: Float, drop_distance: Float) {
-    move_map[invader_type] = MoveParameters(step_distance, drop_distance)
-}
+// The pixel location on the x axis where the invaders should drop and reverse direction
+var screen_left_cutoff = 0F
+var screen_right_cutoff = 0F
+var screen_top_cutoff = 0F
 
-fun getStepDistance(invader_type: InvaderType) = move_map[invader_type]!!.step_distance
-
-fun getDropDistance(invader_type: InvaderType) = move_map[invader_type]!!.drop_distance
+// The pixel location on the y axis where the invaders win if reached
+var invader_win_distance = 0F

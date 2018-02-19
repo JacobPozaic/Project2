@@ -17,7 +17,7 @@ import jacob.pozaic.spaceinvaders.input.PauseMenuInputHandler
 internal val batch = SpriteBatch()
 internal val stg_start = Stage(viewport, batch)
 internal val stg_options = Stage(viewport, batch)
-internal val stg_game = Stage(viewport, batch)
+internal val stg_game = jacob.pozaic.spaceinvaders.game.Stage(viewport, batch)
 
 internal fun startMenu() {
     // Define the UI components
