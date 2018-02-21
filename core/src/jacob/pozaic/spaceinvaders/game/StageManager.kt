@@ -160,10 +160,7 @@ internal fun startMenuOptions() {
 internal fun startGame() {
     // Set the input processors to use
     input_processors.clear()
-    input_processors.addProcessor(GameInputHandler(EM!!))
-
-    // Init the Entity Manager
-    EM!!.init()
+    input_processors.addProcessor(GameInputHandler())
 
     // Set the game state
     game_state = GameState.SHOW_GAME_PLAY

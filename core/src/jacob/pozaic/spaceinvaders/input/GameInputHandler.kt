@@ -1,11 +1,11 @@
 package jacob.pozaic.spaceinvaders.input
 
 import com.badlogic.gdx.InputAdapter
-import jacob.pozaic.spaceinvaders.entity.EntityManager
+import jacob.pozaic.spaceinvaders.game.playerShoot
 
-class GameInputHandler(private val EM: EntityManager): InputAdapter() {
+class GameInputHandler: InputAdapter() {
     override fun touchDown(x: Int, y: Int, pointer: Int, button: Int): Boolean {
-        EM.playerShoot()
+        playerShoot()
         return true
     }
 }

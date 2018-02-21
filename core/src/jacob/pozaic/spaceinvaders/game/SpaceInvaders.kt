@@ -5,24 +5,40 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.utils.viewport.FitViewport
-import jacob.pozaic.spaceinvaders.entity.EntityManager
+import jacob.pozaic.spaceinvaders.entity.Player
 import jacob.pozaic.spaceinvaders.resources.ResourceLoader
+import jacob.pozaic.spaceinvaders.resources.Sprites
+
+// Handles asset loading
+internal val RL = ResourceLoader()
+
+internal val WM: WaveManager = WaveManager()
 
 // Most Android devices have a 16:10 aspect ratio, so use that as a scaling reference
 internal var screen_width: Float = 800F
 internal var screen_height: Float = 480F
 
 internal var viewport: FitViewport? = null
+
+internal const val default_tex_height = 128
+internal const val default_tex_width = 128
 internal var texture_scale = 0.25F
+internal val texture_width = default_tex_width * texture_scale
+internal val texture_height = default_tex_height * texture_scale
+
+internal val player_width = RL.getTexture(Sprites.PLAYER).width * texture_scale / 2
 
 // The state the game is currently in, controls logic and render loops
 internal var game_state = GameState.SHOW_GAME_START
-// Handles asset loading
-internal val RL = ResourceLoader()
-// Handles enemy and player movement and controls
-internal var EM: EntityManager? = null
 
 internal val input_processors = InputMultiplexer()
+
+// The player
+var player: Player? = null
+
+//TODO: deal with this
+// True if the invaders have reached the ground
+var game_over = false
 
 class SpaceInvaders : ApplicationAdapter() {
     override fun create() {
@@ -34,8 +50,23 @@ class SpaceInvaders : ApplicationAdapter() {
         // Load textures
         RL.loadGameTextures()
 
-        // Create the Entity Manager
-        EM = EntityManager(RL, texture_scale, screen_width, screen_height, stg_game)
+        // The pixel location on the x axis where the invaders should drop and reverse direction
+        screen_left_cutoff = x_offset
+        screen_right_cutoff = screen_width - (x_offset + texture_width)
+        screen_top_cutoff = screen_height
+
+        // The pixel location on the y axis where the invaders win if reached
+        invader_win_distance = y_offset_lose + texture_height
+
+        // Add the WaveManager to the Scene (it has no visual components, but makes use of the act() call)
+        stg_game.addActor(WM)
+
+        // Create new player in the center of the screen
+        player = Player(RL.getPlayerTexture(), (screen_width / 2) - player_width, 0F, texture_scale, texture_scale)
+        stg_game.addPlayer(player!!)
+
+        // Create the first wave
+        WM.createWave(1)
 
         // Test accelerometer availability
         if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {

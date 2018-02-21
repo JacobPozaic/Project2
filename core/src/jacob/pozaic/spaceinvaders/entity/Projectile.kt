@@ -18,6 +18,6 @@ class Projectile(
     fun collidesWith(target: Entity): Boolean {
         val center = getCenter()
         val other = target.getCenter()
-        return (Math.sqrt(Math.pow(center.x - other.x, 2.0) + Math.pow(center.y - other.y, 2.0))).toFloat() <= width
+        return (Math.sqrt(Math.pow(center.x - other.x.toDouble(), 2.0) + Math.pow(center.y - other.y.toDouble(), 2.0))).toFloat() <= width
     }
 }

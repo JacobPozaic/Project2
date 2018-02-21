@@ -8,34 +8,32 @@ import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Player
 import jacob.pozaic.spaceinvaders.entity.Projectile
 
-private val invaders = Group()
-private val player = Group()
-private val projectiles = Group()
+private val invaders_gp = Group()
+private val player_gp = Group()
+private val projectiles_gp = Group()
 
 class Stage(viewport: FitViewport?, batch: SpriteBatch): Stage(viewport, batch) {
     init {
-        addActor(invaders)
-        addActor(player)
-        addActor(projectiles)
+        addActor(invaders_gp)
+        addActor(player_gp)
+        addActor(projectiles_gp)
     }
 
     fun addInvader(invader: Invader) {
-        invaders.addActor(invader)
+        invaders_gp.addActor(invader)
     }
 
-    fun noInvaders() = !invaders.hasChildren()
-
-    fun getInvaders() = invaders.children
+    fun getInvaders() = invaders_gp.children!!
 
     fun removeInvader(invader: Invader) {
-        invaders.removeActor(invader)
+        invaders_gp.removeActor(invader)
     }
 
     fun addPlayer(p: Player) {
-        player.addActor(p)
+        player_gp.addActor(p)
     }
 
     fun addProjectile(projectile: Projectile) {
-        projectiles.addActor(projectile)
+        projectiles_gp.addActor(projectile)
     }
 }

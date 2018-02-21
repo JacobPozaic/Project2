@@ -1,7 +1,7 @@
 package jacob.pozaic.spaceinvaders.entity
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import jacob.pozaic.spaceinvaders.ai.MovePattern
+import jacob.pozaic.spaceinvaders.ai.Pos
 
 class Invader(
         tex: TextureRegion,
@@ -9,15 +9,12 @@ class Invader(
         posY: Float,
         scaleWidth: Float,
         scaleHeight: Float,
-        val type: InvaderType,
-        private val movement: MovePattern): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
+        val type: InvaderType): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
     var current_texture: Int = 0
 
-    override fun act(delta: Float) {
-        super.act(delta)
+    var move_group_offset = Pos(0F, 0F)
 
-        setPos(movement.move(getPos()))
+    var last_step_time = 0L
 
-        //TODO: cycle texture
-    }
+    //TODO: in act here check if they reach the ground
 }
