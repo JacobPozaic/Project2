@@ -17,6 +17,7 @@ abstract class Entity (
 
     init {
         sprite.setScale(scaleWidth, scaleHeight)
+        sprite.setOriginCenter()
         setPos(posX, posY)
     }
 

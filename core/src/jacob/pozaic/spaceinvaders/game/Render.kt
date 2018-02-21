@@ -9,6 +9,9 @@ internal fun renderLoop() {
     Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
+    camera.update()
+    batch.projectionMatrix = camera.combined
+
     // Determine what render path to use
     when(game_state) {
         GameState.SHOW_GAME_START   -> startMenuRender()

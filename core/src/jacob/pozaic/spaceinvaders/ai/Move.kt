@@ -1,13 +1,13 @@
 package jacob.pozaic.spaceinvaders.ai
 
-data class MoveResult(val pos: Pos, val remainder: Float, val success: Boolean)
+data class MoveResult(val pos: Pos, val remainder: Float, val success: Boolean, val reached_target: Boolean)
 
 abstract class Move {
-    protected var start = Pos(0F, 0F)
-    protected var end = Pos(0F, 0F)
+    internal var start = Pos(0F, 0F)
+    internal var end = Pos(0F, 0F)
 
-    private var real_start = Pos(0F, 0F)
-    private var real_end = Pos(0F, 0F)
+    protected var group_width = 0F
+    protected var group_height = 0F
 
     var remainder_handling = Remainder.IGNORE
     private var step_type: StepType? = null
@@ -18,11 +18,11 @@ abstract class Move {
 
     // Sets the start and end positions of the movement
     fun start(start: Pos){
-        this.real_start = start
+        this.start = start
     }
 
     fun end(end: Pos) {
-        this.real_end = end
+        this.end = end
     }
 
     // Sets the type of movement that will be used
@@ -41,24 +41,9 @@ abstract class Move {
         this.step_dist = pixels_per_step
     }
 
-    fun updateMoveOffsets(group_width: Float, group_height: Float, current_pos: Pos){
-        if(real_end.x < current_pos.x)
-            end.x = real_end.x + group_width
-        else if(real_end.x > current_pos.x)
-            end.x = real_end.x - group_width
-        if(real_end.y < current_pos.y)
-            end.y = real_end.y + group_height
-        else if(real_end.y > current_pos.y)
-            end.y = real_end.y - group_height
-
-        if(real_start.x < current_pos.x)
-            start.x = real_start.x + group_width
-        else if(real_start.x > current_pos.x)
-            start.x = real_start.x - group_width
-        if(real_start.y < current_pos.y)
-            start.y = real_start.y + group_height
-        else if(real_start.y > current_pos.y)
-            start.y = real_start.y - group_height
+    fun updateMoveOffsets(group_width: Float, group_height: Float){
+        this.group_width = group_width
+        this.group_height = group_height
     }
 
     // Calculates the next movement to be made
@@ -67,21 +52,21 @@ abstract class Move {
             StepType.STATIONARY -> stationary(current_pos, delta)
             StepType.CONTINIOUS -> continious(current_pos, delta)
             StepType.STEP_DISTANCE -> stepDistance(current_pos, last_step_time)
-            else -> MoveResult(current_pos, 0F, false)
+            else -> MoveResult(current_pos, 0F, false, false)
         }
     }
 
     // How each type of movement is handled
     protected open fun stationary(current_pos: Pos, delta: Float): MoveResult {
-        return MoveResult(current_pos, 0F, true)
+        return MoveResult(current_pos, 0F, true, false)
     }
 
     protected open fun continious(current_pos: Pos, delta: Float): MoveResult{
-        return MoveResult(current_pos, 0F, true)
+        return MoveResult(current_pos, 0F, true, false)
     }
 
     protected open fun stepDistance(current_pos: Pos, last_step_time: Long): MoveResult{
-        return MoveResult(current_pos, 0F, true)
+        return MoveResult(current_pos, 0F, true, false)
     }
 
     // Sets parameters for movement (only use these if the movement pattern needs to change after creation)

@@ -23,7 +23,7 @@ class Stage(viewport: FitViewport?, batch: SpriteBatch): Stage(viewport, batch) 
         invaders_gp.addActor(invader)
     }
 
-    fun getInvaders() = invaders_gp.children!!
+    fun getInvaders() = invaders_gp.children
 
     fun removeInvader(invader: Invader) {
         invaders_gp.removeActor(invader)

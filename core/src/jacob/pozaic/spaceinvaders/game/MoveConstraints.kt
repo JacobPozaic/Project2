@@ -4,7 +4,7 @@ package jacob.pozaic.spaceinvaders.game
 const val tilt_sensitivity = 1F
 
 // The speed the player moves at
-const val player_speed = 120F
+const val player_speed = 150F
 
 // The pixel location on the x axis where the invaders should drop and reverse direction
 var screen_left_cutoff = 0F

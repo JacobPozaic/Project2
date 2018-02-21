@@ -2,7 +2,7 @@ package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import jacob.pozaic.spaceinvaders.ai.LinearMove
-import jacob.pozaic.spaceinvaders.ai.MovePattern
+import jacob.pozaic.spaceinvaders.ai.MoveGroup
 import jacob.pozaic.spaceinvaders.ai.Pos
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.InvaderType
@@ -42,20 +42,20 @@ class WaveManager: Actor() {
             }
         }
 
-        // Create the MovePattern for the wave
-        val move_patterns = ArrayList<MovePattern>()
-        val move_pattern = MovePattern()
+        // Create the MoveGroup for the wave
+        val move_patterns = ArrayList<MoveGroup>()
+        val move_pattern = MoveGroup()
 
-        // Add components of the MovePattern
+        // Add components of the MoveGroup
         val move_across = LinearMove()
         with(move_across) {
-            start(Pos(screen_left_cutoff, y_offset))
-            end(Pos(screen_right_cutoff, y_offset))
+            start(Pos(screen_left_cutoff, 350F))
+            end(Pos(screen_right_cutoff, 350F))
             setStepByDistance(0.5F, 10F)
         }
         move_pattern.addMovement(move_across)//TODO: finish
 
-        // Assign each invader to the MovePattern
+        // Assign each invader to the MoveGroup
         move_pattern.addInvaders(invaders)
         move_patterns.add(move_pattern)
 

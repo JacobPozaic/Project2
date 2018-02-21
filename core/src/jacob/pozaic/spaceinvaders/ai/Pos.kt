@@ -1,11 +1,22 @@
 package jacob.pozaic.spaceinvaders.ai
 
 data class Pos(var x: Float, var y: Float) {
-    fun moveToward(dest: Pos, distance: Float): MoveResult {
+    fun moveToward(dest: Pos, distance: Float, width: Float, height: Float): MoveResult {
         // if the step would go further than destination then just go to the destination
-        val distance_to_dest = distanceTo(dest).toFloat()
-        if(distance_to_dest < distance) return MoveResult(dest, distance - distance_to_dest, true)
-        return MoveResult(this.add(dest.sub(this).norm().multiScalar(distance)), 0F, true)
+
+        var target = Pos(dest.x, dest.y)
+        if(this.x > dest.x)// Moving Left
+            target.x -= width / 2
+        else if(this.x < dest.x)// Moving Right
+            target.x += width / 2
+        if(this.y > dest.y)// Moving Up
+            target.y -= height / 2
+        else if(this.y < dest.y) // Moving Down
+            target.y += height / 2
+
+        val distance_to_dest = distanceTo(target).toFloat()
+        if(distance_to_dest <= distance) return MoveResult(dest, distance - distance_to_dest, true, true)
+        return MoveResult(this.add(target.sub(this).norm().multiScalar(distance)), 0F, true, false)
     }
 
     fun add(position: Pos) = Pos(this.x + position.x, this.y + position.y)

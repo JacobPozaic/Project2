@@ -17,6 +17,7 @@ class Player(
     override fun act(delta: Float) {
         super.act(delta)
 
+        println("${getX()}, ${getY()}")
         // Move the player
         val gyro_angle = Gdx.input.accelerometerY
 
