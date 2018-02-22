@@ -14,6 +14,7 @@ class Projectile(
     fun step(distance: Float) {
         val pos = getCenter()
         setPos(pos.x, pos.y + distance)
+        // TODO: projectile animate
     }
 
     fun collidesWith(target: Entity): Boolean {

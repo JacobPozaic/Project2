@@ -13,7 +13,7 @@ abstract class Entity (
         scaleWidth: Float,
         scaleHeight: Float): Actor() {
 
-    private val sprite = Sprite(tex)
+    protected val sprite = Sprite(tex)
 
     init {
         sprite.setScale(scaleWidth, scaleHeight)
@@ -36,7 +36,7 @@ abstract class Entity (
         sprite.draw(batch)
     }
 
-    fun getCenter(): Pos = Pos( // TODO: move thing using center
+    fun getCenter(): Pos = Pos(
             sprite.x + (sprite.width / 2),
             sprite.y + (sprite.height / 2)
     )

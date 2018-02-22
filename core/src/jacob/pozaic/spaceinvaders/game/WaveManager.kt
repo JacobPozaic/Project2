@@ -12,8 +12,12 @@ class WaveManager: Actor() {
 
     fun createWave(wave_number: Int){
         if(current_wave.hasInvaders()) return
-        current_wave = when(wave_number){
+        current_wave = when(wave_number % 5 + 1){
             1 -> defaultWave()
+            2 -> return
+            3 -> return
+            4 -> return
+            5 -> return
             else -> return
         }
     }
@@ -38,7 +42,7 @@ class WaveManager: Actor() {
                 val posX = (texture_width * x) + (spacing_offset * x) + screen.x_offset
                 val posY = screen.height - texture_height - screen.y_offset - ((texture_height * y) + (spacing_offset * 0.5F * y))
                 // Create a new invader
-                invaders.add(Invader(RL.getInvaderTexture(invader_type, 0), posX, posY, texture_scale, texture_scale, invader_type))
+                invaders.add(Invader(RL.getInvaderTexture(invader_type, 0), posX, posY, texture_scale, texture_scale, 500L, invader_type))
             }
         }
 

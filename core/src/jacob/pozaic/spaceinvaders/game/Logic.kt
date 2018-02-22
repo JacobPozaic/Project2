@@ -90,9 +90,8 @@ private fun gameOverLogic() {
 // Player shoots a projectile
 fun playerShoot(){
     if(player_projectile == null) {
-        val location = player!!.x + player_width
-        player_projectile = Projectile(RL.getProjectileTex(ProjectileType.PLAYER, 0), location, player!!.y, texture_scale, texture_scale, ProjectileType.PLAYER)
+        val pos = player!!.getCenter()
+        player_projectile = Projectile(RL.getProjectileTex(ProjectileType.PLAYER, 0), pos.x, pos.y, texture_scale, texture_scale, ProjectileType.PLAYER)
         projectiles.add(player_projectile!!)
-        // TODO: projectile animate
     }
 }

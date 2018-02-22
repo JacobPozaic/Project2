@@ -2,7 +2,6 @@ package jacob.pozaic.spaceinvaders.ai
 
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.entity.Invader
-import jacob.pozaic.spaceinvaders.game.screen
 
 class MoveGroup {
     // The list of movements to be done
@@ -26,9 +25,6 @@ class MoveGroup {
         if(movement.isEmpty()) return
 
         calculateGroup()
-
-        print("${group_center.x}, ${group_center.y} : ")
-        println("${movement[0].end.x}, ${movement[0].end.y}")
 
         var segment_complete = false
         invaders.forEach { invader ->

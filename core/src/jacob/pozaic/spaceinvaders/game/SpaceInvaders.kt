@@ -15,9 +15,9 @@ internal val WM: WaveManager = WaveManager()
 
 internal const val default_tex_height = 128
 internal const val default_tex_width = 128
-internal var texture_scale = 0.25F
-internal val texture_width = default_tex_width * texture_scale
-internal val texture_height = default_tex_height * texture_scale
+internal const val texture_scale = 0.25F
+internal const val texture_width = default_tex_width * texture_scale
+internal const val texture_height = default_tex_height * texture_scale
 
 internal val player_width = RL.getTexture(Sprites.PLAYER).width * texture_scale / 2
 
@@ -27,11 +27,12 @@ internal var game_state = GameState.SHOW_GAME_START
 internal val input_processors = InputMultiplexer()
 
 // The player
-var player: Player? = null
+internal var player: Player? = null
+private var player_texture = 0
 
 //TODO: deal with this
 // True if the invaders have reached the ground
-var game_over = false
+internal var game_over = false
 
 class SpaceInvaders : ApplicationAdapter() {
     override fun create() {
@@ -67,11 +68,11 @@ class SpaceInvaders : ApplicationAdapter() {
         stg_game.addActor(WM)
 
         // Create new player in the center of the screen
-        player = Player(RL.getPlayerTexture(), screen.center_x, screen.bottom, texture_scale, texture_scale)
+        player = Player(RL.getPlayerTexture(player_texture++), screen.center_x, screen.bottom, texture_scale, texture_scale)
         stg_game.addPlayer(player!!)
 
         // Create the first wave
-        WM.createWave(1)
+        WM.createWave(0)
 
         // Start the game
         startMenu()
