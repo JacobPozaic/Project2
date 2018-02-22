@@ -1,13 +1,12 @@
 package jacob.pozaic.spaceinvaders.ai
 
+import jacob.pozaic.spaceinvaders.game.screen
+
 data class MoveResult(val pos: Pos, val remainder: Float, val success: Boolean, val reached_target: Boolean)
 
 abstract class Move {
     internal var start = Pos(0F, 0F)
     internal var end = Pos(0F, 0F)
-
-    protected var group_width = 0F
-    protected var group_height = 0F
 
     var remainder_handling = Remainder.IGNORE
     private var step_type: StepType? = null
@@ -25,6 +24,30 @@ abstract class Move {
         this.end = end
     }
 
+    fun adjustStart(group_width: Float, group_height: Float) {
+        // Adjust the start position so the group starts in the viewport
+        if(start.x < group_width + screen.x_offset)
+            start.x = group_width + screen.x_offset
+        else if(start.x > screen.width - group_width - screen.x_offset)
+            start.x = screen.width - group_width - screen.x_offset
+        if(start.y < group_height + screen.y_offset)
+            start.y = group_height + screen.y_offset
+        else if(start.y > screen.height - group_height - screen.y_offset)
+            start.y = screen.height - group_height - screen.y_offset
+    }
+
+    fun adjustEnd(group_width: Float, group_height: Float) {
+        // Adjust the end position so the group ends in the viewport
+        if(end.x < group_width + screen.x_offset)
+            end.x = group_width + screen.x_offset
+        else if(end.x > screen.width - group_width - screen.x_offset)
+            end.x = screen.width - group_width - screen.x_offset
+        if(end.y < group_height + screen.y_offset)
+            end.y = group_height + screen.y_offset
+        else if(end.y > screen.height - group_height - screen.y_offset)
+            end.y = screen.height - group_height - screen.y_offset
+    }
+
     // Sets the type of movement that will be used
     fun setStationary(){
         step_type = StepType.STATIONARY
@@ -39,11 +62,6 @@ abstract class Move {
         step_type = StepType.STEP_DISTANCE
         this.step_freq = seconds_per_step * 1000
         this.step_dist = pixels_per_step
-    }
-
-    fun updateMoveOffsets(group_width: Float, group_height: Float){
-        this.group_width = group_width
-        this.group_height = group_height
     }
 
     // Calculates the next movement to be made

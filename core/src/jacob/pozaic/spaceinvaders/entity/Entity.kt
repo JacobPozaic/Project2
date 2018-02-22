@@ -18,7 +18,9 @@ abstract class Entity (
     init {
         sprite.setScale(scaleWidth, scaleHeight)
         sprite.setOriginCenter()
+        setScale(scaleWidth, scaleHeight)
         setPos(posX, posY)
+        setOrigin(0F, 0F)
     }
 
     fun setPos(pos: Pos) {
@@ -26,21 +28,15 @@ abstract class Entity (
     }
 
     fun setPos(x: Float, y: Float) {
-        sprite.setPosition(x, y)
+        sprite.setPosition(x - (sprite.width / 2), y - (sprite.height / 2))
         setBounds(sprite.x, sprite.y, sprite.width, sprite.height)
     }
-
-    override fun getX() = sprite.x
-
-    override fun getY() = sprite.y
-
-    fun getPos() = Pos(sprite.x, sprite.y)
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
         sprite.draw(batch)
     }
 
-    fun getCenter(): Pos = Pos(
+    fun getCenter(): Pos = Pos( // TODO: move thing using center
             sprite.x + (sprite.width / 2),
             sprite.y + (sprite.height / 2)
     )

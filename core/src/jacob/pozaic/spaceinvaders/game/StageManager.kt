@@ -10,14 +10,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.badlogic.gdx.utils.viewport.FitViewport
 import jacob.pozaic.spaceinvaders.input.GameInputHandler
 import jacob.pozaic.spaceinvaders.input.GameOverInputHandler
 import jacob.pozaic.spaceinvaders.input.PauseMenuInputHandler
 
 internal val batch = SpriteBatch()
-internal val stg_start = Stage(viewport, batch)
-internal val stg_options = Stage(viewport, batch)
-internal val stg_game = jacob.pozaic.spaceinvaders.game.Stage(viewport, batch)
+internal val stg_start = Stage(FitViewport(screen.width, screen.height), batch)
+internal val stg_options = Stage(FitViewport(screen.width, screen.height), batch)
+internal val stg_game = jacob.pozaic.spaceinvaders.game.Stage(FitViewport(screen.width, screen.height), batch)
 
 internal fun startMenu() {
     // Define the UI components

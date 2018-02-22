@@ -12,7 +12,8 @@ class Projectile(
         val type: ProjectileType): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
 
     fun step(distance: Float) {
-        setPos(getX(), getY() + distance)
+        val pos = getCenter()
+        setPos(pos.x, pos.y + distance)
     }
 
     fun collidesWith(target: Entity): Boolean {

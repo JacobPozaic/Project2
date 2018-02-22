@@ -35,8 +35,8 @@ class WaveManager: Actor() {
 
             for(x in 0..10) {
                 // Calculate the position of the new Invader in scaled space
-                val posX = (texture_width * x) + (spacing_offset * x) + x_offset
-                val posY = screen_height - texture_height - y_offset - ((texture_height * y) + (spacing_offset * 0.5F * y))
+                val posX = (texture_width * x) + (spacing_offset * x) + screen.x_offset
+                val posY = screen.height - texture_height - screen.y_offset - ((texture_height * y) + (spacing_offset * 0.5F * y))
                 // Create a new invader
                 invaders.add(Invader(RL.getInvaderTexture(invader_type, 0), posX, posY, texture_scale, texture_scale, invader_type))
             }
@@ -46,17 +46,23 @@ class WaveManager: Actor() {
         val move_patterns = ArrayList<MoveGroup>()
         val move_pattern = MoveGroup()
 
+        // Assign each invader to the MoveGroup NOTE: Invaders need to be added before the Move component
+        move_pattern.addInvaders(invaders)
+
         // Add components of the MoveGroup
         val move_across = LinearMove()
         with(move_across) {
-            start(Pos(screen_left_cutoff, 350F))
-            end(Pos(screen_right_cutoff, 350F))
+            start(Pos(screen.left, 350F))
+            adjustStart(move_pattern.group_width / 2, move_pattern.group_height / 2)
+            end(Pos(screen.right, 350F))
+            adjustEnd(move_pattern.group_width / 2, move_pattern.group_height / 2)
             setStepByDistance(0.5F, 10F)
         }
-        move_pattern.addMovement(move_across)//TODO: finish
+        move_pattern.addMovement(move_across)
+        // moveGroupToStart() only works after the first Movement has been added
+        move_pattern.moveGroupToStart()
 
-        // Assign each invader to the MoveGroup
-        move_pattern.addInvaders(invaders)
+        //TODO: finish adding movement parts
         move_patterns.add(move_pattern)
 
         // Add all invaders to the Stage for rendering

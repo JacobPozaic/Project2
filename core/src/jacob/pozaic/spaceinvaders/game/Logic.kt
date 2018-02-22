@@ -52,7 +52,7 @@ private fun gamePlayLogic() {
                         projectiles.addAll(arrayOf(p, p_invader))
                 }
                 }
-            p.y >= screen_top_cutoff -> projectiles_destroyed.add(p)    // Player projectile left screen
+            p.y >= screen.top -> projectiles_destroyed.add(p)    // Player projectile left screen
             else -> stg_game.getInvaders().forEach {invader ->          // Invader collision
                 val invader = invader as Invader
                 if(p.collidesWith(invader)) {

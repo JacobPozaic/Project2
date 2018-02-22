@@ -2,6 +2,7 @@ package jacob.pozaic.spaceinvaders.ai
 
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.entity.Invader
+import jacob.pozaic.spaceinvaders.game.screen
 
 class MoveGroup {
     // The list of movements to be done
@@ -14,7 +15,9 @@ class MoveGroup {
     private var minY = Float.MAX_VALUE
     private var maxY = Float.MIN_VALUE
 
-    private var group_center = Pos(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2)
+    internal var group_width = maxX - minX
+    internal var group_height = maxY - minY
+    private var group_center = Pos(minX + group_width / 2, minY + group_height / 2)
 
     //TODO: have a way to update a movement pattern if needed (ex: when a column dies, move further that direction)
     // This is handled only for movement sharing a group
@@ -24,11 +27,14 @@ class MoveGroup {
 
         calculateGroup()
 
+        print("${group_center.x}, ${group_center.y} : ")
+        println("${movement[0].end.x}, ${movement[0].end.y}")
+
         var segment_complete = false
         invaders.forEach { invader ->
-            invader.move_group_offset = invader.getPos().sub(group_center)
+            invader.move_group_offset = invader.getCenter().sub(group_center)
             val group_offset = invader.move_group_offset
-            val pos = invader.getPos().sub(group_offset)
+            val pos = invader.getCenter().sub(group_offset)
             var move_segment = movement[0]
             val result = move_segment.nextPosition(pos, delta, invader.last_step_time)
             if(result.success) {
@@ -65,7 +71,7 @@ class MoveGroup {
 
     fun addInvaders(invaders: ArrayList<Invader>) {
         this.invaders.addAll(invaders)
-        moveGroupToStart()
+        calculateGroup()
     }
 
     fun removeInvader(invader: Invader){
@@ -73,11 +79,11 @@ class MoveGroup {
         calculateGroup()
     }
 
-    private fun moveGroupToStart() {
+    fun moveGroupToStart() {
         if(movement.isEmpty()) return
         calculateGroup()
         val distance_to_start = group_center.sub(movement[0].start)
-        invaders.forEach { it.setPos(it.getPos().sub(distance_to_start)) }
+        invaders.forEach { it.setPos(it.getCenter().sub(distance_to_start)) }
         calculateGroup()
     }
 
@@ -88,16 +94,15 @@ class MoveGroup {
         maxY = Float.MIN_VALUE
 
         this.invaders.forEach {
-            val pos = it.getPos()
+            val pos = it.getCenter()
             if(pos.x < minX) minX = pos.x
             else if(pos.x > maxX) maxX = pos.x
             if(pos.y < minY) minY = pos.y
             else if(pos.y > maxY) maxY = pos.y
         }
 
-        group_center = Pos(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2)
-
-        // Modifies the start and end points so any part of the group reaching the end point counts
-        movement.forEach { it.updateMoveOffsets((maxX - minX) / 2, (maxY - minY) / 2) }
+        group_width = maxX - minX
+        group_height = maxY - minY
+        group_center = Pos(minX + group_width / 2, minY + group_height / 2)
     }
 }
