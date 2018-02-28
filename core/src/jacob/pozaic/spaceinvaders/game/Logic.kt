@@ -1,6 +1,8 @@
 package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.utils.TimeUtils
+import jacob.pozaic.spaceinvaders.entity.Entity
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Projectile
 import jacob.pozaic.spaceinvaders.resources.ProjectileType
@@ -13,18 +15,21 @@ private var player_projectile: Projectile? = null
 
 private val projectiles_destroyed = ArrayList<Projectile>()
 
-internal fun logicLoop() {
+internal fun logicLoop(game: SpaceInvaders) {
     // Determine what logic path to use
     when(game_state) {
-        GameState.SHOW_GAME_PLAY  -> gamePlayLogic()
+        GameState.SHOW_GAME_PLAY  -> gamePlayLogic(game)
         GameState.SHOW_GAME_PAUSE -> gamePauseLogic()
         GameState.SHOW_GAME_OVER  -> gameOverLogic()
     }
 }
 
-private fun gamePlayLogic() {
+private fun gamePlayLogic(game: SpaceInvaders) {
     // Lose condition
     if (game_over) gameOver()
+
+    // Update the wave and move all Invaders
+    WM!!.update(Gdx.graphics.deltaTime)
 
     // TODO: sounds
 
@@ -53,12 +58,10 @@ private fun gamePlayLogic() {
                 }
                 }
             p.y >= screen.top -> projectiles_destroyed.add(p)    // Player projectile left screen
-            else -> stg_game.getInvaders().forEach {invader ->          // Invader collision
-                val invader = invader as Invader
+            else -> game.getInvaders().forEach {invader ->          // Invader collision
                 if(p.collidesWith(invader)) {
                     projectiles_destroyed.add(p)
-                    stg_game.removeInvader(invader)
-                    WM.removeInvader(invader)
+                    game.removeInvader(invader)
                     // TODO: add score
                     return@nextProjectile
                 }
@@ -74,6 +77,12 @@ private fun gamePlayLogic() {
         }
     }
     projectiles_destroyed.clear()
+
+    if(invadersUpdated) {
+        stg_game.actors.filter { actor -> actor is Invader }.forEach { actor -> actor.remove() }
+        game.getInvaders().forEach { invader -> stg_game.addActor(invader) }
+        invadersUpdated = false
+    }
 
     stg_game.act(Gdx.graphics.deltaTime)
 }

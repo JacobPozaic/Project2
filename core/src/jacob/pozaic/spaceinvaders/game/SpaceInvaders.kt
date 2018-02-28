@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
+import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Player
 import jacob.pozaic.spaceinvaders.resources.ResourceLoader
 import jacob.pozaic.spaceinvaders.resources.Sprites
@@ -11,8 +12,9 @@ import jacob.pozaic.spaceinvaders.resources.Sprites
 // Handles asset loading
 internal val RL = ResourceLoader()
 
-internal val WM: WaveManager = WaveManager()
+internal var WM: WaveManager? = null
 
+// Constants
 internal const val default_tex_height = 128
 internal const val default_tex_width = 128
 internal const val texture_scale = 0.25F
@@ -30,16 +32,22 @@ internal val input_processors = InputMultiplexer()
 internal var player: Player? = null
 private var player_texture = 0
 
+internal var invadersUpdated = false
+
 //TODO: deal with this
 // True if the invaders have reached the ground
 internal var game_over = false
 
 class SpaceInvaders : ApplicationAdapter() {
+    private val invaders = ArrayList<Invader>()
+
     override fun create() {
         // Test accelerometer availability
         if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {
             //TODO: draw arrows and add listeners to move the player
         }
+
+        WM = WaveManager(this)
 
         // Create the input handler and set it
         Gdx.input.inputProcessor = input_processors
@@ -64,15 +72,12 @@ class SpaceInvaders : ApplicationAdapter() {
         // Load textures
         RL.loadGameTextures()
 
-        // Add the WaveManager to the Scene (it has no visual components, but makes use of the act() call)
-        stg_game.addActor(WM)
-
         // Create new player in the center of the screen
         player = Player(RL.getPlayerTexture(player_texture++), screen.center_x, screen.bottom, texture_scale, texture_scale)
-        stg_game.addPlayer(player!!)
+        stg_game.addActor(player!!)
 
         // Create the first wave
-        WM.createWave(0)
+        WM!!.createWave(0)
 
         // Start the game
         startMenu()
@@ -80,7 +85,7 @@ class SpaceInvaders : ApplicationAdapter() {
 
     override fun render() {
         // Logic
-        logicLoop()
+        logicLoop(this)
 
         // Render the frame
         renderLoop()
@@ -94,5 +99,17 @@ class SpaceInvaders : ApplicationAdapter() {
             GameState.SHOW_GAME_PAUSE -> stg_game.viewport.update(width, height)//TODO:
             GameState.SHOW_GAME_START -> stg_start.viewport.update(width, height)
         }
+    }
+
+    fun getInvaders() = invaders
+
+    fun addInvader(invader: Invader) {
+        invaders.add(invader)
+        invadersUpdated = true
+    }
+
+    fun removeInvader(invader: Invader) {
+        invaders.remove(invader)
+        invadersUpdated = true
     }
 }

@@ -2,6 +2,7 @@ package jacob.pozaic.spaceinvaders.entity
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.TimeUtils
+import jacob.pozaic.spaceinvaders.ai.MoveGroup
 import jacob.pozaic.spaceinvaders.ai.Pos
 import jacob.pozaic.spaceinvaders.game.RL
 
@@ -14,13 +15,15 @@ class Invader(
         private val texture_cycle_delay: Long,
         private val type: InvaderType): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
 
-    var current_texture: Int = 0
+    private var current_texture: Int = 0
 
     var move_group_offset = Pos(0F, 0F)
 
     var last_step_time = 0L
 
     var last_texture_swap = 0L
+
+    var move_group: MoveGroup? = null
 
     override fun act(delta: Float) {
         super.act(delta)
