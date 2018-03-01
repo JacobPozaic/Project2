@@ -22,6 +22,9 @@ class WaveManager(private val game: SpaceInvaders) {
     }
 
     private fun defaultWave(): Wave {
+        // Create the MoveGroup for the wave
+        val move_pattern = MoveGroup(game)
+
         var invader_type = InvaderType.FIGHTER
         for(y in 0..4) {
             // Depending on what row, different invaders will spawn
@@ -39,35 +42,30 @@ class WaveManager(private val game: SpaceInvaders) {
                 // Calculate the position of the new Invader in scaled space
                 val posX = (texture_width * x) + (spacing_offset * x) + screen.x_offset
                 val posY = screen.height - texture_height - screen.y_offset - ((texture_height * y) + (spacing_offset * 0.5F * y))
+                // Get the default texture for the invader
+                val invader_tex = RL.getInvaderTexture(invader_type, 0)
                 // Create a new invader
-                game.addInvader(Invader(RL.getInvaderTexture(invader_type, 0), posX, posY, texture_scale, texture_scale, 500L, invader_type))
+                val invader = Invader(invader_tex, posX, posY, texture_scale, texture_scale, move_pattern, 500L, invader_type)
+                game.addInvader(invader)
             }
         }
 
-        // Create the MoveGroup for the wave
-        val move_patterns = ArrayList<MoveGroup>()
-        val move_pattern = MoveGroup(game)
-
-        // Assign each invader to the MoveGroup NOTE: Invaders need to be added before the Move component
-        game.getInvaders().forEach { it.move_group = move_pattern } // TODO: this can be kinda boxed in with the invader creation
-
         // Add components of the MoveGroup
         val move_across = LinearMove()
+        val g_width = move_pattern.getGroupWidth() / 2
+        val g_height = move_pattern.getGroupHeight() / 2
         with(move_across) {
-            start(Pos(screen.left, 350F))
-            adjustStart(move_pattern.group_width / 2, move_pattern.group_height / 2)
-            end(Pos(screen.right, 350F))
-            adjustEnd(move_pattern.group_width / 2, move_pattern.group_height / 2)
+            start(adjustPoint(Pos(screen.left, 350F), g_width, g_height))
+            end(adjustPoint(Pos(screen.right, 350F), g_width, g_height))
             setStepByDistance(0.5F, 10F)
         }
         move_pattern.addMovement(move_across)
-        // moveGroupToStart() only works after the first Movement has been added
-        move_pattern.moveGroupToStart()
 
         //TODO: finish adding movement parts
-        move_patterns.add(move_pattern)
 
-        return Wave(game, move_patterns)
+        // moveGroupToStart() only works on the first Movement has been added to the group
+        move_pattern.moveGroupToStart()
+        return Wave(game, listOf(move_pattern))
     }
 
     fun update(delta: Float) {

@@ -12,18 +12,16 @@ class Invader(
         posY: Float,
         scaleWidth: Float,
         scaleHeight: Float,
+        val move_group: MoveGroup,
         private val texture_cycle_delay: Long,
         private val type: InvaderType): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
 
     private var current_texture: Int = 0
-
-    var move_group_offset = Pos(0F, 0F)
+    private var last_texture_swap = 0L
 
     var last_step_time = 0L
 
-    var last_texture_swap = 0L
-
-    var move_group: MoveGroup? = null
+    var move_group_offset = Pos(0F, 0F)
 
     override fun act(delta: Float) {
         super.act(delta)

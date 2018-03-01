@@ -1,6 +1,7 @@
 package jacob.pozaic.spaceinvaders.ai
 
 import com.badlogic.gdx.utils.TimeUtils
+import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.game.SpaceInvaders
 
 class MoveGroup(private val game: SpaceInvaders){
@@ -12,8 +13,8 @@ class MoveGroup(private val game: SpaceInvaders){
     private var minY = Float.MAX_VALUE
     private var maxY = Float.MIN_VALUE
 
-    internal var group_width = maxX - minX
-    internal var group_height = maxY - minY
+    private var group_width = maxX - minX
+    private var group_height = maxY - minY
     private var group_center = Pos(minX + group_width / 2, minY + group_height / 2)
 
     fun move(delta: Float) {
@@ -22,7 +23,7 @@ class MoveGroup(private val game: SpaceInvaders){
         calculateGroup()
 
         var segment_complete = false
-        game.getInvaders().filter { it.move_group == this }.forEach { invader ->
+        getInvaders().forEach { invader ->
             invader.move_group_offset = invader.getCenter().sub(group_center)
             val group_offset = invader.move_group_offset
             val pos = invader.getCenter().sub(group_offset)
@@ -64,9 +65,11 @@ class MoveGroup(private val game: SpaceInvaders){
         if(movement.isEmpty()) return
         calculateGroup()
         val distance_to_start = group_center.sub(movement[0].start)
-        game.getInvaders().forEach { it.setPos(it.getCenter().sub(distance_to_start)) }
+        getInvaders().forEach { invader -> invader.setPos(invader.getCenter().sub(distance_to_start)) }// TODO: not moving for adjust position
         calculateGroup()
     }
+
+    private fun getInvaders(): List<Invader> = game.getInvaders().filter { invader -> invader.move_group == this }
 
     private fun calculateGroup() {
         minX = Float.MAX_VALUE
@@ -85,5 +88,15 @@ class MoveGroup(private val game: SpaceInvaders){
         group_width = maxX - minX
         group_height = maxY - minY
         group_center = Pos(minX + group_width / 2, minY + group_height / 2)
+    }
+
+    fun getGroupWidth(): Float {
+        calculateGroup()
+        return group_width
+    }
+
+    fun getGroupHeight(): Float {
+        calculateGroup()
+        return group_height
     }
 }

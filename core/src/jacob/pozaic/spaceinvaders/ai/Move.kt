@@ -8,7 +8,7 @@ abstract class Move {
     internal var start = Pos(0F, 0F)
     internal var end = Pos(0F, 0F)
 
-    var remainder_handling = Remainder.IGNORE
+    internal var remainder_handling = Remainder.IGNORE
     private var step_type: StepType? = null
 
     protected var step_freq: Float = 0F
@@ -24,28 +24,16 @@ abstract class Move {
         this.end = end
     }
 
-    fun adjustStart(group_width: Float, group_height: Float) {
-        // Adjust the start position so the group starts in the viewport
-        if(start.x < group_width + screen.x_offset)
-            start.x = group_width + screen.x_offset
-        else if(start.x > screen.width - group_width - screen.x_offset)
-            start.x = screen.width - group_width - screen.x_offset
-        if(start.y < group_height + screen.y_offset)
-            start.y = group_height + screen.y_offset
-        else if(start.y > screen.height - group_height - screen.y_offset)
-            start.y = screen.height - group_height - screen.y_offset
-    }
-
-    fun adjustEnd(group_width: Float, group_height: Float) {
-        // Adjust the end position so the group ends in the viewport
-        if(end.x < group_width + screen.x_offset)
-            end.x = group_width + screen.x_offset
-        else if(end.x > screen.width - group_width - screen.x_offset)
-            end.x = screen.width - group_width - screen.x_offset
-        if(end.y < group_height + screen.y_offset)
-            end.y = group_height + screen.y_offset
-        else if(end.y > screen.height - group_height - screen.y_offset)
-            end.y = screen.height - group_height - screen.y_offset
+    fun adjustPoint(position: Pos, group_width: Float, group_height: Float): Pos {
+        if(position.x < group_width + screen.x_offset)
+            position.x = group_width + screen.x_offset
+        else if(position.x > screen.width - group_width - screen.x_offset)
+            position.x = screen.width - group_width - screen.x_offset
+        if(position.y < group_height + screen.y_offset)
+            position.y = group_height + screen.y_offset
+        else if(position.y > screen.height - group_height - screen.y_offset)
+            position.y = screen.height - group_height - screen.y_offset
+        return position
     }
 
     // Sets the type of movement that will be used

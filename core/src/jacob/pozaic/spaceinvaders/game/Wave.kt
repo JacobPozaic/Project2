@@ -2,7 +2,7 @@ package jacob.pozaic.spaceinvaders.game
 
 import jacob.pozaic.spaceinvaders.ai.MoveGroup
 
-class Wave(private val game: SpaceInvaders, private val move_groups: ArrayList<MoveGroup>){
+class Wave(private val game: SpaceInvaders, private val move_groups: List<MoveGroup>){
     fun update(delta: Float){
         move_groups.forEach { it.move(delta) }
     }
