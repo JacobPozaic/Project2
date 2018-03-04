@@ -2,87 +2,80 @@ package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.TimeUtils
-import jacob.pozaic.spaceinvaders.entity.Entity
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Projectile
 import jacob.pozaic.spaceinvaders.resources.ProjectileType
 
-// A list of each projectile currently on screen
-private val projectiles = ArrayList<Projectile>()
-
-// If the player has shot, this will store the entity for the projectile
-private var player_projectile: Projectile? = null
-
 private val projectiles_destroyed = ArrayList<Projectile>()
 
-internal fun logicLoop(game: SpaceInvaders) {
+internal fun logicLoop() {
     // Determine what logic path to use
     when(game_state) {
-        GameState.SHOW_GAME_PLAY  -> gamePlayLogic(game)
+        GameState.SHOW_GAME_PLAY  -> gamePlayLogic()
         GameState.SHOW_GAME_PAUSE -> gamePauseLogic()
         GameState.SHOW_GAME_OVER  -> gameOverLogic()
     }
 }
 
-private fun gamePlayLogic(game: SpaceInvaders) {
-    // Lose condition
-    if (game_over) gameOver()
-
+private fun gamePlayLogic() {
     // Update the wave and move all Invaders
     WM!!.update(Gdx.graphics.deltaTime)
 
     // TODO: sounds
 
-    // Update locations
-    //TODO: fix this
     // Move the players projectile if one exists
-    if(player_projectile != null) {
-        player_projectile!!.step(player_projectile_speed * Gdx.graphics.deltaTime)
-    }
+    game!!.getProjectiles().filter { p -> p.type == ProjectileType.PLAYER }
+            .forEach { player_p -> player_p.step(player_projectile_speed * Gdx.graphics.deltaTime) }
 
     // TODO: step invader projectiles
 
     // Check for any collisions in projectiles
-    projectiles.forEach nextProjectile@{p ->
-        //TODO collision size
+    game!!.getProjectiles().forEach nextProjectile@{p ->
         when {
             p.type != ProjectileType.PLAYER ->
                 when {
-                    p.y <= player!!.y -> projectiles_destroyed.add(p)   // Invader projectile left screen
-                    p.collidesWith(player!!) -> {                       // Invader projectile hit player
+                    p.y <= player!!.y -> projectiles_destroyed.add(p)           // Invader projectile left screen
+                    p.collidesWith(player!!) -> {                               // Invader projectile hit player
                         projectiles_destroyed.add(p)
-                        // TODO: player loses life
-                    } else -> projectiles.forEach { p_invader ->        // Projectile collides with another projectile
-                    if (p.collidesWith(p_invader))
-                        projectiles.addAll(arrayOf(p, p_invader))
+                        game!!.playerLoseLife()
+                    } else -> game!!.getProjectiles().forEach { p_invader ->    // Projectile collides with another projectile
+                        if (p.collidesWith(p_invader))
+                            projectiles_destroyed.addAll(arrayOf(p, p_invader))
+                    }
                 }
-                }
-            p.y >= screen.top -> projectiles_destroyed.add(p)    // Player projectile left screen
-            else -> game.getInvaders().forEach {invader ->          // Invader collision
+            p.y >= screen.top -> projectiles_destroyed.add(p)                   // Player projectile left screen
+            else -> game!!.getInvaders().forEach {invader ->                    // Invader collision
                 if(p.collidesWith(invader)) {
                     projectiles_destroyed.add(p)
-                    game.removeInvader(invader)
-                    // TODO: add score
+                    game!!.removeInvader(invader)
+                    //TODO: player_score += invader_SCORE_VALUE
                     return@nextProjectile
                 }
             }
         }
     }
+
     // Remove the destroyed projectiles and then clear the list
-    projectiles_destroyed.forEach {
-        if(projectiles.contains(it)) {
-            if (it.type == ProjectileType.PLAYER)
-                player_projectile = null
-            projectiles.remove(it)
-        }
-    }
+    projectiles_destroyed.filter { p_destroyed -> game!!.getProjectiles().contains(p_destroyed) }
+            .forEach {p_to_remove -> game!!.removeProjectile(p_to_remove) }
     projectiles_destroyed.clear()
 
+    if(projectilesUpdated) {
+        stg_game.actors.filter { actor -> actor is Projectile }
+                .forEach { actor -> actor.remove() }
+        game!!.getProjectiles().forEach { projectile -> stg_game.addActor(projectile) }
+        projectilesUpdated = false
+    }
+
     if(invadersUpdated) {
-        stg_game.actors.filter { actor -> actor is Invader }.forEach { actor -> actor.remove() }
-        game.getInvaders().forEach { invader -> stg_game.addActor(invader) }
+        stg_game.actors.filter { actor -> actor is Invader }
+                .forEach { actor -> actor.remove() }
+        game!!.getInvaders().forEach { invader -> stg_game.addActor(invader) }
         invadersUpdated = false
     }
+
+    // Lose condition
+    if(game_over) gameOver()
 
     stg_game.act(Gdx.graphics.deltaTime)
 }
@@ -95,12 +88,13 @@ private fun gameOverLogic() {
     //TODO:
 }
 
-//TODO: deal with this
+private var time_since_last_shot = 0L
+
 // Player shoots a projectile
 fun playerShoot(){
-    if(player_projectile == null) {
+    if(TimeUtils.timeSinceMillis(time_since_last_shot) >= shoot_delay){
+        time_since_last_shot = TimeUtils.millis()
         val pos = player!!.getCenter()
-        player_projectile = Projectile(RL.getProjectileTex(ProjectileType.PLAYER, 0), pos.x, pos.y, texture_scale, texture_scale, ProjectileType.PLAYER)
-        projectiles.add(player_projectile!!)
+        game!!.addProjectile(Projectile(RL.getProjectileTex(ProjectileType.PLAYER, 0), pos.x, pos.y, texture_scale, texture_scale, ProjectileType.PLAYER, 200))
     }
 }

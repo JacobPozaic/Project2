@@ -6,48 +6,57 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Player
+import jacob.pozaic.spaceinvaders.entity.Projectile
 import jacob.pozaic.spaceinvaders.resources.ResourceLoader
-import jacob.pozaic.spaceinvaders.resources.Sprites
 
 // Handles asset loading
 internal val RL = ResourceLoader()
 
 internal var WM: WaveManager? = null
 
+internal val input_processors = InputMultiplexer()
+
+internal var game: SpaceInvaders? = null
+
 // Constants
 internal const val default_tex_height = 128
 internal const val default_tex_width = 128
 internal const val texture_scale = 0.25F
+internal const val ui_texture_scale = 0.2F * default_tex_width
 internal const val texture_width = default_tex_width * texture_scale
 internal const val texture_height = default_tex_height * texture_scale
 
-internal val player_width = RL.getTexture(Sprites.PLAYER).width * texture_scale / 2
+internal const val shoot_delay = 1000L
 
 // The state the game is currently in, controls logic and render loops
 internal var game_state = GameState.SHOW_GAME_START
 
-internal val input_processors = InputMultiplexer()
-
 // The player
 internal var player: Player? = null
-private var player_texture = 0
 
 internal var invadersUpdated = false
+internal var projectilesUpdated = false
 
-//TODO: deal with this
 // True if the invaders have reached the ground
 internal var game_over = false
+
+internal var player_lives = 3
+internal var player_score = 0
 
 class SpaceInvaders : ApplicationAdapter() {
     private val invaders = ArrayList<Invader>()
 
+    // A list of each projectile currently on screen
+    private val projectiles = ArrayList<Projectile>()
+
     override fun create() {
+        game = this
         // Test accelerometer availability
         if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {
             //TODO: draw arrows and add listeners to move the player
         }
 
-        WM = WaveManager(this)
+        WM = WaveManager(game!!)
 
         // Create the input handler and set it
         Gdx.input.inputProcessor = input_processors
@@ -73,7 +82,7 @@ class SpaceInvaders : ApplicationAdapter() {
         RL.loadGameTextures()
 
         // Create new player in the center of the screen
-        player = Player(RL.getPlayerTexture(player_texture++), screen.center_x, screen.bottom, texture_scale, texture_scale)
+        player = Player(RL.getPlayerTexture(0), screen.center_x, screen.bottom, texture_scale, texture_scale)
         stg_game.addActor(player!!)
 
         // Create the first wave
@@ -85,7 +94,7 @@ class SpaceInvaders : ApplicationAdapter() {
 
     override fun render() {
         // Logic
-        logicLoop(this)
+        logicLoop()
 
         // Render the frame
         renderLoop()
@@ -94,10 +103,22 @@ class SpaceInvaders : ApplicationAdapter() {
     override fun resize(width: Int, height: Int) {
         when(game_state){
             GameState.SHOW_GAME_OPTIONS -> stg_options.viewport.update(width, height)
-            GameState.SHOW_GAME_OVER -> stg_game.viewport.update(width, height)//TODO:
+            GameState.SHOW_GAME_OVER -> stg_game.viewport.update(width, height)
             GameState.SHOW_GAME_PLAY -> stg_game.viewport.update(width, height)
-            GameState.SHOW_GAME_PAUSE -> stg_game.viewport.update(width, height)//TODO:
+            GameState.SHOW_GAME_PAUSE -> stg_game.viewport.update(width, height)
             GameState.SHOW_GAME_START -> stg_start.viewport.update(width, height)
+        }
+    }
+
+    fun playerLoseLife(){
+        player_lives -= 1
+        when(player_lives) {
+            2 -> player_lives_img[2].remove()
+            1 -> player_lives_img[1].remove()
+            0 -> {
+                player_lives_img[0].remove()
+                game_over = true
+            }
         }
     }
 
@@ -111,5 +132,17 @@ class SpaceInvaders : ApplicationAdapter() {
     fun removeInvader(invader: Invader) {
         invaders.remove(invader)
         invadersUpdated = true
+    }
+
+    fun getProjectiles() = projectiles
+
+    fun addProjectile(projectile: Projectile) {
+        projectiles.add(projectile)
+        projectilesUpdated = true
+    }
+
+    fun removeProjectile(projectile: Projectile) {
+        projectiles.remove(projectile)
+        projectilesUpdated = true
     }
 }

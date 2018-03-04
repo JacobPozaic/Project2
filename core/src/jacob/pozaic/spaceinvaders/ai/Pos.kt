@@ -12,15 +12,15 @@ data class Pos(var x: Float, var y: Float) {
 
     fun sub(position: Pos) = Pos(this.x - position.x, this.y - position.y)
 
-    fun multiScalar(distance: Float)= Pos(this.x * distance, this.y * distance)
+    private fun multiScalar(distance: Float)= Pos(this.x * distance, this.y * distance)
 
-    fun norm(): Pos {
+    private fun norm(): Pos {
         val m = mag()
         if(m > 0) return Pos(this.x / m, this.y / m)
         return this
     }
 
-    fun mag() = Math.sqrt((this.x*this.x) + (this.y*this.y).toDouble()).toFloat()
+    private fun mag() = Math.sqrt((this.x*this.x) + (this.y*this.y).toDouble()).toFloat()
 
-    fun distanceTo(position: Pos) = Math.sqrt(Math.pow(this.x - position.x.toDouble(), 2.0) + Math.pow(this.y - position.y.toDouble(), 2.0))
+    private fun distanceTo(position: Pos) = Math.sqrt(Math.pow(this.x - position.x.toDouble(), 2.0) + Math.pow(this.y - position.y.toDouble(), 2.0))
 }

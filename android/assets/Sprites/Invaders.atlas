@@ -1,6 +1,6 @@
 
 Invaders.png
-size: 512,256
+size: 1024,256
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
@@ -14,6 +14,20 @@ Bomber-1
 Bomber-2
   rotate: false
   xy: 132, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+Fighter-1
+  rotate: false
+  xy: 262, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+Fighter-2
+  rotate: false
+  xy: 392, 2
   size: 128, 128
   orig: 128, 128
   offset: 0, 0

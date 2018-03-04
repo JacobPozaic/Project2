@@ -1,6 +1,8 @@
 package jacob.pozaic.spaceinvaders.entity
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.utils.TimeUtils
+import jacob.pozaic.spaceinvaders.game.RL
 import jacob.pozaic.spaceinvaders.resources.ProjectileType
 
 class Projectile(
@@ -9,17 +11,28 @@ class Projectile(
         posY: Float,
         scaleWidth: Float,
         scaleHeight: Float,
-        val type: ProjectileType): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
+        val type: ProjectileType,
+        private val texture_cycle_delay: Long): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
 
     fun step(distance: Float) {
         val pos = getCenter()
         setPos(pos.x, pos.y + distance)
-        // TODO: projectile animate
     }
 
     fun collidesWith(target: Entity): Boolean {
-        val center = getCenter()
-        val other = target.getCenter()
-        return (Math.sqrt(Math.pow(center.x - other.x.toDouble(), 2.0) + Math.pow(center.y - other.y.toDouble(), 2.0))).toFloat() <= width
+        return this.getRect().overlaps(target.getRect())
+    }
+
+    private var current_texture: Int = 0
+    private var last_texture_swap = 0L
+
+    override fun act(delta: Float) {
+        super.act(delta)
+        if(TimeUtils.timeSinceMillis(last_texture_swap) >= texture_cycle_delay){
+            last_texture_swap = TimeUtils.millis()
+
+            // Cycle the texture
+            sprite.setRegion(RL.getProjectileTex(type, current_texture++))
+        }
     }
 }

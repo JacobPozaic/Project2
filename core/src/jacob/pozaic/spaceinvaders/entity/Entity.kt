@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.math.Rectangle
 import jacob.pozaic.spaceinvaders.ai.Pos
 
 abstract class Entity (
@@ -18,9 +19,9 @@ abstract class Entity (
     init {
         sprite.setScale(scaleWidth, scaleHeight)
         sprite.setOriginCenter()
-        setScale(scaleWidth, scaleHeight)
+        this.setScale(scaleWidth, scaleHeight)
         setPos(posX, posY)
-        setOrigin(0F, 0F)
+        this.setOrigin(0F, 0F)
     }
 
     fun setPos(pos: Pos) {
@@ -40,4 +41,6 @@ abstract class Entity (
             sprite.x + (sprite.width / 2),
             sprite.y + (sprite.height / 2)
     )
+
+    fun getRect(): Rectangle = this.sprite.boundingRectangle
 }

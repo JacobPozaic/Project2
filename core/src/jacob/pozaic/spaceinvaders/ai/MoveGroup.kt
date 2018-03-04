@@ -27,7 +27,7 @@ class MoveGroup(private val game: SpaceInvaders){
             invader.move_group_offset = invader.getCenter().sub(group_center)
             val group_offset = invader.move_group_offset
             val pos = invader.getCenter().sub(group_offset)
-            var move_segment = movement[0]
+            val move_segment = movement[0]
             val result = move_segment.nextPosition(pos, delta, invader.last_step_time)
             if(result.success) {
                 invader.last_step_time = TimeUtils.millis()
@@ -36,19 +36,19 @@ class MoveGroup(private val game: SpaceInvaders){
                     return@forEach
                 }
                 if(result.reached_target) segment_complete = true
-                if(movement.size < 2) return@forEach
-                move_segment = movement[1]
-                when(move_segment.remainder_handling){
-                    Remainder.IGNORE -> return
-                    Remainder.PASS_BY_DISTANCE -> {
-                        return // TODO: move by remainder
-                    }
-                    Remainder.PASS_BY_TIME -> {
-                        return // TODO: move by remainder
-                    }
-                }
             }
         }
+
+        /*if(movement.size <= 1) return@forEach // handling remainder in movement
+        when(movement[1].remainder_handling){
+            Remainder.IGNORE -> return@forEach
+            Remainder.PASS_BY_DISTANCE -> {
+                return@forEach // TODO: move by remainder
+            }
+            Remainder.PASS_BY_TIME -> {
+                return@forEach // TODO: move by remainder
+            }
+        }*/
 
         // After a segment of movements is completed it can be removed
         if(segment_complete) {
@@ -65,7 +65,7 @@ class MoveGroup(private val game: SpaceInvaders){
         if(movement.isEmpty()) return
         calculateGroup()
         val distance_to_start = group_center.sub(movement[0].start)
-        getInvaders().forEach { invader -> invader.setPos(invader.getCenter().sub(distance_to_start)) }// TODO: not moving for adjust position
+        getInvaders().forEach { invader -> invader.setPos(invader.getCenter().sub(distance_to_start)) }
         calculateGroup()
     }
 
@@ -96,7 +96,8 @@ class MoveGroup(private val game: SpaceInvaders){
     }
 
     fun getGroupHeight(): Float {
-        calculateGroup()
+        calculateGroup()// TODO: moving is done only from original center, cannot adjust end point, calculate messes with verticle movement
+        //what if keep original rectangle, but continue moving in direction with calculated rect until wall is hit?
         return group_height
     }
 }

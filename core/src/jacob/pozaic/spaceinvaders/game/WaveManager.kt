@@ -51,19 +51,41 @@ class WaveManager(private val game: SpaceInvaders) {
         }
 
         // Add components of the MoveGroup
-        val move_across = LinearMove()
+        val move_across_1 = LinearMove()
         val g_width = move_pattern.getGroupWidth() / 2
         val g_height = move_pattern.getGroupHeight() / 2
-        with(move_across) {
+        with(move_across_1) {
             start(adjustPoint(Pos(screen.left, 350F), g_width, g_height))
             end(adjustPoint(Pos(screen.right, 350F), g_width, g_height))
             setStepByDistance(0.5F, 10F)
         }
-        move_pattern.addMovement(move_across)
+        move_pattern.addMovement(move_across_1)
 
+        val move_down_1 = LinearMove()
+        with(move_down_1){
+            start(adjustPoint(move_across_1.end, g_width, g_height))
+            end(adjustPoint(Pos(move_across_1.end.x, move_across_1.end.y - 20), g_width, g_height))
+            setStepByDistance(0.5F, 20F)
+        }
+        move_pattern.addMovement(move_down_1)
+
+        val move_across_2 = LinearMove()
+        with(move_across_2) {
+            start(adjustPoint(move_down_1.end, g_width, g_height))
+            end(adjustPoint(Pos(screen.left, move_down_1.end.y), g_width, g_height))
+            setStepByDistance(0.5F, 10F)
+        }
+        move_pattern.addMovement(move_across_2)
+
+        val move_down_2 = LinearMove()
+        with(move_down_2){
+            start(adjustPoint(move_across_2.end, g_width, g_height))
+            end(adjustPoint(Pos(move_across_2.end.x, move_across_2.end.y - 20), g_width, g_height))
+            setStepByDistance(0.5F, 20F)
+        }
+        move_pattern.addMovement(move_down_1)
         //TODO: finish adding movement parts
 
-        // moveGroupToStart() only works on the first Movement has been added to the group
         move_pattern.moveGroupToStart()
         return Wave(game, listOf(move_pattern))
     }

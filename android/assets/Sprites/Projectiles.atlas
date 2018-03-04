@@ -1,0 +1,20 @@
+
+Projectiles.png
+size: 128,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+Projectile-Player-1
+  rotate: false
+  xy: 2, 2
+  size: 32, 64
+  orig: 32, 64
+  offset: 0, 0
+  index: -1
+Projectile-Player-2
+  rotate: false
+  xy: 36, 2
+  size: 32, 64
+  orig: 32, 64
+  offset: 0, 0
+  index: -1
