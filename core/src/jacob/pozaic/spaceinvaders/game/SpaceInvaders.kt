@@ -22,7 +22,7 @@ internal var game: SpaceInvaders? = null
 internal const val default_tex_height = 128
 internal const val default_tex_width = 128
 internal const val texture_scale = 0.25F
-internal const val ui_texture_scale = 0.2F * default_tex_width
+internal const val ui_texture_scale = 0.25F * default_tex_width
 internal const val texture_width = default_tex_width * texture_scale
 internal const val texture_height = default_tex_height * texture_scale
 
@@ -39,7 +39,9 @@ internal var projectilesUpdated = false
 
 // True if the invaders have reached the ground
 internal var game_over = false
+internal var draw_arrows = false
 
+// Game play variables
 internal var player_lives = 3
 internal var player_score = 0
 
@@ -51,10 +53,6 @@ class SpaceInvaders : ApplicationAdapter() {
 
     override fun create() {
         game = this
-        // Test accelerometer availability
-        if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {
-            //TODO: draw arrows and add listeners to move the player
-        }
 
         WM = WaveManager(game!!)
 
@@ -85,8 +83,14 @@ class SpaceInvaders : ApplicationAdapter() {
         player = Player(RL.getPlayerTexture(0), screen.center_x, screen.bottom, texture_scale, texture_scale)
         stg_game.addActor(player!!)
 
+        // Test accelerometer availability
+        if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {
+            draw_arrows = true
+            player!!.useAccelerometer(true)
+        }
+
         // Create the first wave
-        WM!!.createWave(0)
+        WM!!.createWave(0)//TODO: wave number
 
         // Start the game
         startMenu()

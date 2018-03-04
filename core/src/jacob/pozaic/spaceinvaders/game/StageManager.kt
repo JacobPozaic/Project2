@@ -1,6 +1,7 @@
 package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -19,6 +20,9 @@ internal val stg_options = Stage(FitViewport(screen.width, screen.height), batch
 internal val stg_game = Stage(FitViewport(screen.width, screen.height), batch)
 
 private val ui_font = BitmapFont()
+
+internal var arrow_left: Button? = Button()
+internal var arrow_right: Button? = Button()
 
 private val player_life_image = RL.getPlayerTexture(0)
 internal val player_lives_img = listOf(Image(player_life_image), Image(player_life_image), Image(player_life_image))
@@ -117,6 +121,7 @@ internal fun startMenuOptions() {
     val option_button = TextButton("Options", btn_option_style)
     option_button.addListener(object : ChangeListener() {
         override fun changed(event: ChangeEvent?, actor: Actor?) {
+            //
         }
     })
     table.row()
@@ -133,6 +138,8 @@ internal fun startMenuOptions() {
 }
 
 internal fun startGame() {
+    val input = InputMultiplexer()
+
     val player_lives_table = Table()
     player_lives_table.setFillParent(true)
 
@@ -146,9 +153,41 @@ internal fun startGame() {
     }
     stg_game.addActor(player_lives_table)
 
+    if(draw_arrows) {
+        val btn_skin = Skin()
+        btn_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/ManualInput.atlas")))
+
+        val arrow_style_left = Button.ButtonStyle()
+        with(arrow_style_left) {
+            up = btn_skin.getDrawable("Move-left")
+            down = btn_skin.getDrawable("Move-left")
+            checked = btn_skin.getDrawable("Move-left")
+        }
+        arrow_left = Button(arrow_style_left)
+
+        val arrow_style_right = Button.ButtonStyle()
+        with(arrow_style_right) {
+            up = btn_skin.getDrawable("Move-right")
+            down = btn_skin.getDrawable("Move-right")
+            checked = btn_skin.getDrawable("Move-right")
+        }
+        arrow_right = Button(arrow_style_right)
+
+        val arrow_table = Table()
+        arrow_table.setFillParent(true)
+        with(arrow_table){
+            add(arrow_left).width(50F).height(50F).expand().left().bottom().pad(5F)
+            add(arrow_right).width(50F).height(50F).expand().right().bottom().pad(5F)
+        }
+        stg_game.addActor(arrow_table)
+        input.addProcessor(stg_game)
+    }
+
+    input.addProcessor(GameInputHandler())
+
     // Set the input processors to use
     input_processors.clear()
-    input_processors.addProcessor(GameInputHandler())
+    input_processors.addProcessor(input)
 
     // Set the game state
     game_state = GameState.SHOW_GAME_PLAY
@@ -169,9 +208,6 @@ internal fun gameOver() {
     // Set the input processors to use
     input_processors.clear()
     input_processors.addProcessor(GameOverInputHandler())
-
-    // Dispose of game textures
-    RL.disposeGameTextures()
 
     // Set the game state
     game_state = GameState.SHOW_GAME_OVER

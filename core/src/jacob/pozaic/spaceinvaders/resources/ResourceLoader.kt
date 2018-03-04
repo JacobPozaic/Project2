@@ -2,6 +2,7 @@ package jacob.pozaic.spaceinvaders.resources
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import jacob.pozaic.spaceinvaders.entity.InvaderType
@@ -43,11 +44,6 @@ class ResourceLoader {
         //TODO: invader projectile textures
 
         textures[Sprites.BACKGROUND] = Texture("Background.png")
-    }
-
-    fun disposeGameTextures() {
-        textures.forEach{ it.value.dispose() }
-        textures.clear()
     }
 
     fun getTexture(type: Sprites): Texture {

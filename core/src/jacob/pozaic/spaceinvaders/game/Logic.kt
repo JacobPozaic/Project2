@@ -1,6 +1,8 @@
 package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Projectile
@@ -9,6 +11,15 @@ import jacob.pozaic.spaceinvaders.resources.ProjectileType
 private val projectiles_destroyed = ArrayList<Projectile>()
 
 internal fun logicLoop() {
+    // Update player position if using movement arrows
+    if(draw_arrows){
+        if(arrow_left!!.isPressed){
+            player!!.step(-Gdx.graphics.deltaTime * player_speed)
+        } else if(arrow_right!!.isPressed) {
+            player!!.step(Gdx.graphics.deltaTime * player_speed)
+        }
+    }
+
     // Determine what logic path to use
     when(game_state) {
         GameState.SHOW_GAME_PLAY  -> gamePlayLogic()
