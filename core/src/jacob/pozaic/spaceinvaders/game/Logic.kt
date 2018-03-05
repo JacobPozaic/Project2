@@ -12,9 +12,10 @@ private val projectiles_destroyed = ArrayList<Projectile>()
 internal fun logicLoop() {
     // Update player position if using movement arrows
     if(draw_arrows){
-        if(arrow_left!!.isPressed){
+        val x_pos = player!!.getCenter().x
+        if(arrow_left!!.isPressed && x_pos > screen.left){
             player!!.step(-Gdx.graphics.deltaTime * player_speed)
-        } else if(arrow_right!!.isPressed) {
+        } else if(arrow_right!!.isPressed && x_pos < screen.right) {
             player!!.step(Gdx.graphics.deltaTime * player_speed)
         }
     }

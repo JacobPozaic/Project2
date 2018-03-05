@@ -99,33 +99,42 @@ internal fun startMenuOptions() {
     val table = Table()
     table.setFillParent(true)
 
-    //TODO: make into options menu, not this
     val btn_skin = Skin()
     btn_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Buttons.atlas")))
 
-    val btn_opt_style = TextButton.TextButtonStyle()
-    with(btn_opt_style) {
+    val btn_use_acc_style = TextButton.TextButtonStyle()
+    with(btn_use_acc_style) {
         font = ui_font
         up = btn_skin.getDrawable("button-up")
-        down = btn_skin.getDrawable("button-down")
-        checked = btn_skin.getDrawable("button-up")
+        down = btn_skin.getDrawable("button-up")
+        checked = btn_skin.getDrawable("button-down")
     }
-
-    val btn_option_style = TextButton.TextButtonStyle()
-    with(btn_option_style) {
-        font = ui_font
-        up = btn_skin.getDrawable("button-up")
-        down = btn_skin.getDrawable("button-down")
-        checked = btn_skin.getDrawable("button-up")
-    }
-    val option_button = TextButton("Options", btn_option_style)
-    option_button.addListener(object : ChangeListener() {
+    val btn_use_acc = TextButton("Don't use Accelerometer", btn_use_acc_style)
+    btn_use_acc.addListener(object : ChangeListener() {
         override fun changed(event: ChangeEvent?, actor: Actor?) {
-            //
+            if (btn_use_acc.isChecked){
+                draw_arrows = true
+            }
+        }
+    })
+    table.add(btn_use_acc).width(300F).height(100F).pad(1F)
+
+    val btn_ret_main_style = TextButton.TextButtonStyle()
+    with(btn_ret_main_style) {
+        font = ui_font
+        up = btn_skin.getDrawable("button-up")
+        down = btn_skin.getDrawable("button-down")
+        checked = btn_skin.getDrawable("button-up")
+    }
+    val btn_ret_main = TextButton("Main Menu", btn_ret_main_style)
+    btn_ret_main.addListener(object : ChangeListener() {
+        override fun changed(event: ChangeEvent?, actor: Actor?) {
+            startMenu()
+            game_state = GameState.SHOW_GAME_START
         }
     })
     table.row()
-    table.add(option_button).width(300F).height(100F).pad(1F)
+    table.add(btn_ret_main).width(300F).height(100F).pad(1F)
 
     stg_options.addActor(table)
 
@@ -176,8 +185,8 @@ internal fun startGame() {
         val arrow_table = Table()
         arrow_table.setFillParent(true)
         with(arrow_table){
-            add(arrow_left).width(50F).height(50F).expand().left().bottom().pad(5F)
-            add(arrow_right).width(50F).height(50F).expand().right().bottom().pad(5F)
+            add(arrow_left).width(45F).height(35F).expand().left().bottom().pad(15F)
+            add(arrow_right).width(45F).height(35F).expand().right().bottom().pad(15F)
         }
         stg_game.addActor(arrow_table)
         input.addProcessor(stg_game)

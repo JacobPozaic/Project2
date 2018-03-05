@@ -81,13 +81,12 @@ class SpaceInvaders : ApplicationAdapter() {
         RL.loadGameTextures()
 
         // Create new player in the center of the screen
-        player = Player(RL.getPlayerTexture(0), screen.center_x, screen.bottom, texture_scale, texture_scale)
+        player = Player(RL.getPlayerTexture(0), screen.center_x, screen.bottom, texture_scale, texture_scale, game!!)
         stg_game.addActor(player!!)
 
         // Test accelerometer availability
         if (!Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer)) {
             draw_arrows = true
-            player!!.useAccelerometer(true)
         }
 
         // Start the game
@@ -123,6 +122,8 @@ class SpaceInvaders : ApplicationAdapter() {
             }
         }
     }
+
+    fun useAccelerometer() = draw_arrows
 
     fun getInvaders() = invaders
 
