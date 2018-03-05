@@ -13,8 +13,8 @@ class Invader(
         scaleWidth: Float,
         scaleHeight: Float,
         val move_group: MoveGroup,
-        private val texture_cycle_delay: Long,
-        private val type: InvaderType): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
+        val type: InvaderType,
+        private val texture_cycle_delay: Long): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
 
     private var current_texture: Int = 0
     private var last_texture_swap = 0L

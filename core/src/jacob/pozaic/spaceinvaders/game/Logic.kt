@@ -1,10 +1,9 @@
 package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.entity.Invader
+import jacob.pozaic.spaceinvaders.entity.InvaderType
 import jacob.pozaic.spaceinvaders.entity.Projectile
 import jacob.pozaic.spaceinvaders.resources.ProjectileType
 
@@ -59,7 +58,9 @@ private fun gamePlayLogic() {
                 if(p.collidesWith(invader)) {
                     projectiles_destroyed.add(p)
                     game!!.removeInvader(invader)
-                    //TODO: player_score += invader_SCORE_VALUE
+                    val score = addScore(invader.type)
+                    player_score += score
+                    //TODO: show toast with score, and invader death animation
                     return@nextProjectile
                 }
             }
@@ -85,6 +86,8 @@ private fun gamePlayLogic() {
         invadersUpdated = false
     }
 
+    WM!!.createWave()
+
     // Lose condition
     if(game_over) gameOver()
 
@@ -97,6 +100,14 @@ private fun gamePauseLogic() {
 
 private fun gameOverLogic() {
     //TODO:
+}
+
+private fun addScore(type: InvaderType): Int {
+    return when(type) {
+        InvaderType.FIGHTER -> 100
+        InvaderType.BOMBER -> 150
+        InvaderType.MOTHER_SHIP -> 200
+    }
 }
 
 private var time_since_last_shot = 0L

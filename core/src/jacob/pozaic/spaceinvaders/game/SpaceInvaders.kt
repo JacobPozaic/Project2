@@ -44,6 +44,7 @@ internal var draw_arrows = false
 // Game play variables
 internal var player_lives = 3
 internal var player_score = 0
+internal var wave_number = 0
 
 class SpaceInvaders : ApplicationAdapter() {
     private val invaders = ArrayList<Invader>()
@@ -88,9 +89,6 @@ class SpaceInvaders : ApplicationAdapter() {
             draw_arrows = true
             player!!.useAccelerometer(true)
         }
-
-        // Create the first wave
-        WM!!.createWave(0)//TODO: wave number
 
         // Start the game
         startMenu()

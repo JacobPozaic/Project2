@@ -96,8 +96,9 @@ class MoveGroup(private val game: SpaceInvaders){
     }
 
     fun getGroupHeight(): Float {
-        calculateGroup()// TODO: moving is done only from original center, cannot adjust end point, calculate messes with verticle movement
+        calculateGroup()// TODO: moving should be done only from original center, cannot adjust end point, calculate messes with verticle movement
         //what if keep original rectangle, but continue moving in direction with calculated rect until wall is hit?
+        // or on column/row destroyed update end position
         return group_height
     }
 }

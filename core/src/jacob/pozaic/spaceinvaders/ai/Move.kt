@@ -15,6 +15,8 @@ abstract class Move {
     protected var step_dist: Float = 0F
     protected var step_speed: Float = 0F
 
+    //TODO: setDelayStart
+
     // Sets the start and end positions of the movement
     fun start(start: Pos){
         this.start = start

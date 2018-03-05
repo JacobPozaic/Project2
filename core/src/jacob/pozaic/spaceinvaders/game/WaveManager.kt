@@ -7,21 +7,23 @@ import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.InvaderType
 
 class WaveManager(private val game: SpaceInvaders) {
-    private var current_wave = Wave(game, ArrayList())
+    private var current_wave: List<MoveGroup>? = null
 
-    fun createWave(wave_number: Int){
-        if(current_wave.hasInvaders()) return
-        current_wave = when(wave_number % 5 + 1){
-            1 -> defaultWave()
-            2 -> return
-            3 -> return
-            4 -> return
-            5 -> return
-            else -> return
+    fun createWave(){
+        if(game.getInvaders().size == 0) {
+            wave_number++
+            current_wave = when(wave_number % 5){
+                1 -> defaultWave()
+                2 -> defaultWave()
+                3 -> defaultWave()
+                4 -> defaultWave()
+                5 -> defaultWave()
+                else -> return // This will never happen
+            }
         }
     }
 
-    private fun defaultWave(): Wave {
+    private fun defaultWave(): List<MoveGroup> {
         // Create the MoveGroup for the wave
         val move_pattern = MoveGroup(game)
 
@@ -45,7 +47,7 @@ class WaveManager(private val game: SpaceInvaders) {
                 // Get the default texture for the invader
                 val invader_tex = RL.getInvaderTexture(invader_type, 0)
                 // Create a new invader
-                val invader = Invader(invader_tex, posX, posY, texture_scale, texture_scale, move_pattern, 500L, invader_type)
+                val invader = Invader(invader_tex, posX, posY, texture_scale, texture_scale, move_pattern, invader_type, 500L)
                 game.addInvader(invader)
             }
         }
@@ -63,15 +65,15 @@ class WaveManager(private val game: SpaceInvaders) {
 
         val move_down_1 = LinearMove()
         with(move_down_1){
-            start(adjustPoint(move_across_1.end, g_width, g_height))
-            end(adjustPoint(Pos(move_across_1.end.x, move_across_1.end.y - 20), g_width, g_height))
+            start(adjustPoint(Pos(screen.right, move_across_1.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.right, move_across_1.end.y - 20), g_width, g_height))
             setStepByDistance(0.5F, 20F)
         }
         move_pattern.addMovement(move_down_1)
 
         val move_across_2 = LinearMove()
         with(move_across_2) {
-            start(adjustPoint(move_down_1.end, g_width, g_height))
+            start(adjustPoint(Pos(screen.right, move_down_1.end.y), g_width, g_height))
             end(adjustPoint(Pos(screen.left, move_down_1.end.y), g_width, g_height))
             setStepByDistance(0.5F, 10F)
         }
@@ -79,19 +81,20 @@ class WaveManager(private val game: SpaceInvaders) {
 
         val move_down_2 = LinearMove()
         with(move_down_2){
-            start(adjustPoint(move_across_2.end, g_width, g_height))
-            end(adjustPoint(Pos(move_across_2.end.x, move_across_2.end.y - 20), g_width, g_height))
+            start(adjustPoint(Pos(screen.left, move_across_2.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.left, move_across_2.end.y - 20), g_width, g_height))
             setStepByDistance(0.5F, 20F)
         }
-        move_pattern.addMovement(move_down_1)
+        move_pattern.addMovement(move_down_2)
         //TODO: finish adding movement parts
 
         move_pattern.moveGroupToStart()
-        return Wave(game, listOf(move_pattern))
+        return listOf(move_pattern)
     }
 
     fun update(delta: Float) {
         // Each frame update the Wave, in turn updating all Invaders
-        current_wave.update(delta)
+        if(current_wave != null)
+            current_wave!!.forEach { move_group -> move_group.move(delta) }
     }
 }
