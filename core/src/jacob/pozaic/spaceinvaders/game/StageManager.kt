@@ -119,6 +119,11 @@ internal fun startMenuOptions() {
     })
     table.add(btn_use_acc).width(300F).height(100F).pad(1F)
 
+    if(draw_arrows) {
+        btn_use_acc.isDisabled = true
+        btn_use_acc.isChecked = true
+    }
+
     val btn_ret_main_style = TextButton.TextButtonStyle()
     with(btn_ret_main_style) {
         font = ui_font
