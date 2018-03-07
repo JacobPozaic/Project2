@@ -2,7 +2,9 @@ package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
-import jacob.pozaic.spaceinvaders.resources.Sprites
+import com.badlogic.gdx.graphics.Texture
+
+private val bkg = Texture("Background.png")
 
 internal fun renderLoop() {
     // Render frame
@@ -35,7 +37,7 @@ private fun gamePlayRender() {
     batch.begin()
 
     // Draw the background
-    batch.draw(RL.getTexture(Sprites.BACKGROUND), 0F, 0F, screen.width, screen.height)
+    batch.draw(bkg, 0F, 0F, screen.width, screen.height)
 
     batch.end()
     stg_game.camera.update()

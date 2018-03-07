@@ -24,9 +24,6 @@ private val ui_font = BitmapFont()
 internal var arrow_left: Button? = Button()
 internal var arrow_right: Button? = Button()
 
-private val player_life_image = RL.getPlayerTexture(0)
-internal val player_lives_img = listOf(Image(player_life_image), Image(player_life_image), Image(player_life_image))
-
 internal fun startMenu() {
     // Define the UI components
     val table = Table()
@@ -167,7 +164,7 @@ internal fun startGame() {
     val lives_label = Label("Lives: ", lives_skin_style)
     with(player_lives_table) {
         add(lives_label)
-        player_lives_img.forEach { image -> add(image).size(ui_texture_scale).padLeft(5F) }
+        player_lives_img!!.forEach { image -> add(image).size(ui_texture_scale).padLeft(5F) }
         padLeft(5F).padTop(5F).left().top()
     }
     stg_game.addActor(player_lives_table)

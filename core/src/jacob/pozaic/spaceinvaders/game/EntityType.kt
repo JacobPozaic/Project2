@@ -1,0 +1,5 @@
+package jacob.pozaic.spaceinvaders.game
+
+enum class EntityType {
+    PLAYER, PLAYER_PROJECTILE, FIGHTER, FIGHTER_PROJECTILE, BOMBER, BOMBER_PROJECTILE, MOTHER_SHIP, MOTHER_SHIP_PROJECTILE
+}

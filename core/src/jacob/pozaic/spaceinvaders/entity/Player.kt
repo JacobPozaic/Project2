@@ -1,34 +1,24 @@
 package jacob.pozaic.spaceinvaders.entity
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import jacob.pozaic.spaceinvaders.game.SpaceInvaders
-import jacob.pozaic.spaceinvaders.game.player_speed
-import jacob.pozaic.spaceinvaders.game.screen
-import jacob.pozaic.spaceinvaders.game.tilt_sensitivity
+import jacob.pozaic.spaceinvaders.game.*
 
 class Player(
-        tex: TextureRegion,
         posX: Float,
         posY: Float,
-        scaleWidth: Float,
-        scaleHeight: Float,
-        private val game: SpaceInvaders): Entity(tex, posX, posY, scaleWidth, scaleHeight) {
+        scale: Float): Entity(EntityType.PLAYER, posX, posY, scale, scale) {
 
     override fun act(delta: Float) {
         super.act(delta)
 
-        if(game.useAccelerometer()) {
+        if(game!!.useAccelerometer()) {
             // Move the player
             val gyro_angle = Gdx.input.accelerometerY
+            val player_speed = getParameters().move_Speed * delta
 
             when{
-                gyro_angle > tilt_sensitivity ->
-                    if(getCenter().x < screen.right)
-                        step(player_speed * delta)
-                gyro_angle < -tilt_sensitivity ->
-                    if(getCenter().x > screen.left)
-                        step(-player_speed * delta)
+                gyro_angle >  tilt_sensitivity -> if(getCenter().x < screen.right) step( player_speed)
+                gyro_angle < -tilt_sensitivity -> if(getCenter().x > screen.left)  step(-player_speed)
             }
         }
     }

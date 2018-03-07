@@ -3,22 +3,26 @@ package jacob.pozaic.spaceinvaders.game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.entity.Invader
-import jacob.pozaic.spaceinvaders.entity.InvaderType
 import jacob.pozaic.spaceinvaders.entity.Projectile
-import jacob.pozaic.spaceinvaders.resources.ProjectileType
 import java.util.*
 
+// Stores a list of removed projectiles so that when checking collisions all projectiles are still in-tact until iterated through
 private val projectiles_destroyed = ArrayList<Projectile>()
 
+// The time that the invaders and player last shot
+private var enemy_last_shoot_time = 0L
+private var player_last_shot_time = 0L
+
+/**
+ * Called every frame before render
+ */
 internal fun logicLoop() {
     // Update player position if using movement arrows
     if(draw_arrows){
         val x_pos = player!!.getCenter().x
-        if(arrow_left!!.isPressed && x_pos > screen.left){
-            player!!.step(-Gdx.graphics.deltaTime * player_speed)
-        } else if(arrow_right!!.isPressed && x_pos < screen.right) {
-            player!!.step(Gdx.graphics.deltaTime * player_speed)
-        }
+        val distance = game!!.entity(EntityType.PLAYER).move_Speed * Gdx.graphics.deltaTime
+        if(arrow_left!!.isPressed && x_pos > screen.left) player!!.step(-distance)
+        else if(arrow_right!!.isPressed && x_pos < screen.right) player!!.step(distance)
     }
 
     // Determine what logic path to use
@@ -29,25 +33,30 @@ internal fun logicLoop() {
     }
 }
 
+/**
+ * Called when the game is playing (not in menu)
+ */
 private fun gamePlayLogic() {
+    // Gets the time since the last frame
     val frame_delta = Gdx.graphics.deltaTime
+
     // Update the wave and move all Invaders
     WM!!.update(frame_delta)
 
     // Invader shoot projectiles
     val num_invaders = game!!.getInvaders().size
     if(num_invaders > 0) {
-        val enemy_projectiles = game!!.getProjectiles().filter { p -> p.type != ProjectileType.PLAYER }.size
-        if(enemy_projectiles < max_enemy_projectiles) {
+        // Check if the maximum number of invader projectiles has been reached
+        if(game!!.getProjectiles().filter { p -> p.type != EntityType.PLAYER_PROJECTILE }.size < max_enemy_projectiles) {
+            // Check if the time since the last enemy shot is greater than the minimum shoot delay and give chance to an enemy firing, or if the time since the last shot is greater than the max delay then fire
             if((TimeUtils.timeSinceMillis(enemy_last_shoot_time) > min_enemy_shoot_delay && enemy_shoot_chance * frame_delta >= rand.nextInt(100))
                     || TimeUtils.timeSinceMillis(enemy_last_shoot_time) > max_enemy_shoot_delay) {
                 enemy_last_shoot_time = TimeUtils.millis()
+                // Randomly choose an invader to shoot the projectile
                 val invader_shooting = game!!.getInvaders()[rand.nextInt(num_invaders)]
                 val pos = invader_shooting.getCenter()
-                val projectile_type = getProjectileType(invader_shooting.type)
-                val tex = RL.getProjectileTex(projectile_type, 0)
-                game!!.addProjectile(Projectile(tex, pos.x, pos.y, texture_scale, texture_scale, projectile_type, 200))
-                println("yes")
+                val projectile_type = game!!.entity(invader_shooting.type).projectile_type
+                game!!.addProjectile(Projectile(projectile_type!!, pos.x, pos.y, texture_scale))
             }
         }
     }
@@ -55,19 +64,19 @@ private fun gamePlayLogic() {
     // TODO: sounds
 
     // Move the projectiles
-    game!!.getProjectiles().forEach { p -> p.step(getProjectileSpeed(p.type) * frame_delta) }
+    game!!.getProjectiles().forEach { p -> p.step(game!!.entity(p.type).move_Speed * frame_delta) }
 
     // Check for any collisions in projectiles
     game!!.getProjectiles().forEach nextProjectile@{p ->
         when {
-            p.type != ProjectileType.PLAYER ->
+            p.type != EntityType.PLAYER_PROJECTILE ->
                 when {
                     p.y <= player!!.y -> projectiles_destroyed.add(p)           // Invader projectile left screen
                     p.collidesWith(player!!) -> {                               // Invader projectile hit player
                         projectiles_destroyed.add(p)
                         game!!.playerLoseLife()
                     } else -> game!!.getProjectiles()                           // Projectile collides with another projectile
-                            .filter { p_player ->  p_player.type == ProjectileType.PLAYER }
+                            .filter { p_player ->  p_player.type == EntityType.PLAYER_PROJECTILE }
                             .forEach { p_player -> if (p.collidesWith(p_player)){
                                 projectiles_destroyed.add(p)
                                 projectiles_destroyed.add(p_player)
@@ -79,7 +88,7 @@ private fun gamePlayLogic() {
                 if(p.collidesWith(invader)) {
                     projectiles_destroyed.add(p)
                     game!!.removeInvader(invader)
-                    val score = addScore(invader.type)
+                    val score = game!!.entity(invader.type).score_value
                     player_score += score
                     //TODO: show toast with score, and invader death animation
                     return@nextProjectile
@@ -93,6 +102,7 @@ private fun gamePlayLogic() {
             .forEach {p_to_remove -> game!!.removeProjectile(p_to_remove) }
     projectiles_destroyed.clear()
 
+    // Update the list of projectiles
     if(projectilesUpdated) {
         stg_game.actors.filter { actor -> actor is Projectile }
                 .forEach { actor -> actor.remove() }
@@ -100,6 +110,7 @@ private fun gamePlayLogic() {
         projectilesUpdated = false
     }
 
+    // Update the list of invaders
     if(invadersUpdated) {
         stg_game.actors.filter { actor -> actor is Invader }
                 .forEach { actor -> actor.remove() }
@@ -107,11 +118,10 @@ private fun gamePlayLogic() {
         invadersUpdated = false
     }
 
-    WM!!.createWave()
-
     // Lose condition
     if(game_over) gameOver()
 
+    // Get each actor on the stage to act
     stg_game.act(Gdx.graphics.deltaTime)
 }
 
@@ -123,38 +133,13 @@ private fun gameOverLogic() {
     //TODO:
 }
 
-private fun addScore(type: InvaderType): Int {
-    return when(type) {
-        InvaderType.FIGHTER -> 100
-        InvaderType.BOMBER -> 150
-        InvaderType.MOTHER_SHIP -> 200
-    }
-}
-
-private fun getProjectileType(type: InvaderType): ProjectileType {
-    return when(type) {
-        InvaderType.FIGHTER -> ProjectileType.FIGHTER
-        InvaderType.BOMBER -> ProjectileType.BOMBER
-        InvaderType.MOTHER_SHIP -> ProjectileType.MOTHER_SHIP
-    }
-}
-
-private fun getProjectileSpeed(type: ProjectileType): Float {
-    return when(type) {
-        ProjectileType.PLAYER -> player_projectile_speed
-        ProjectileType.FIGHTER -> fighter_projectile_speed
-        ProjectileType.BOMBER -> bomber_projectile_speed
-        ProjectileType.MOTHER_SHIP -> mother_ship_projectile_speed
-    }
-}
-
-private var time_since_last_shot = 0L
-
-// Player shoots a projectile
+/**
+ * Makes the player shoot a projectile if the last shot was long enough
+ */
 fun playerShoot(){
-    if(TimeUtils.timeSinceMillis(time_since_last_shot) >= shoot_delay){
-        time_since_last_shot = TimeUtils.millis()
+    if(TimeUtils.timeSinceMillis(player_last_shot_time) >= shoot_delay){
+        player_last_shot_time = TimeUtils.millis()
         val pos = player!!.getCenter()
-        game!!.addProjectile(Projectile(RL.getProjectileTex(ProjectileType.PLAYER, 0), pos.x, pos.y, texture_scale, texture_scale, ProjectileType.PLAYER, 200))
+        game!!.addProjectile(Projectile(EntityType.PLAYER_PROJECTILE, pos.x, pos.y, texture_scale))
     }
 }
