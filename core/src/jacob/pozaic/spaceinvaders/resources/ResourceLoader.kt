@@ -41,6 +41,12 @@ class ResourceLoader {
         projectile_textures[ProjectileType.PLAYER]!!.add(projectile_tex.findRegion("Projectile-Player-2"))
 
         //TODO: invader projectile textures
+        projectile_textures[ProjectileType.FIGHTER]!!.add(projectile_tex.findRegion("Projectile-Player-1"))
+        projectile_textures[ProjectileType.FIGHTER]!!.add(projectile_tex.findRegion("Projectile-Player-2"))
+        projectile_textures[ProjectileType.BOMBER]!!.add(projectile_tex.findRegion("Projectile-Player-1"))
+        projectile_textures[ProjectileType.BOMBER]!!.add(projectile_tex.findRegion("Projectile-Player-2"))
+        projectile_textures[ProjectileType.MOTHER_SHIP]!!.add(projectile_tex.findRegion("Projectile-Player-1"))
+        projectile_textures[ProjectileType.MOTHER_SHIP]!!.add(projectile_tex.findRegion("Projectile-Player-2"))
 
         textures[Sprites.BACKGROUND] = Texture("Background.png")
     }

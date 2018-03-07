@@ -18,7 +18,7 @@ class Player(
     override fun act(delta: Float) {
         super.act(delta)
 
-        if(!game.useAccelerometer()) {
+        if(game.useAccelerometer()) {
             // Move the player
             val gyro_angle = Gdx.input.accelerometerY
 

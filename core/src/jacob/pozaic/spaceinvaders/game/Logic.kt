@@ -6,6 +6,7 @@ import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.InvaderType
 import jacob.pozaic.spaceinvaders.entity.Projectile
 import jacob.pozaic.spaceinvaders.resources.ProjectileType
+import java.util.*
 
 private val projectiles_destroyed = ArrayList<Projectile>()
 
@@ -29,16 +30,32 @@ internal fun logicLoop() {
 }
 
 private fun gamePlayLogic() {
+    val frame_delta = Gdx.graphics.deltaTime
     // Update the wave and move all Invaders
-    WM!!.update(Gdx.graphics.deltaTime)
+    WM!!.update(frame_delta)
+
+    // Invader shoot projectiles
+    val num_invaders = game!!.getInvaders().size
+    if(num_invaders > 0) {
+        val enemy_projectiles = game!!.getProjectiles().filter { p -> p.type != ProjectileType.PLAYER }.size
+        if(enemy_projectiles < max_enemy_projectiles) {
+            if((TimeUtils.timeSinceMillis(enemy_last_shoot_time) > min_enemy_shoot_delay && enemy_shoot_chance * frame_delta >= rand.nextInt(100))
+                    || TimeUtils.timeSinceMillis(enemy_last_shoot_time) > max_enemy_shoot_delay) {
+                enemy_last_shoot_time = TimeUtils.millis()
+                val invader_shooting = game!!.getInvaders()[rand.nextInt(num_invaders)]
+                val pos = invader_shooting.getCenter()
+                val projectile_type = getProjectileType(invader_shooting.type)
+                val tex = RL.getProjectileTex(projectile_type, 0)
+                game!!.addProjectile(Projectile(tex, pos.x, pos.y, texture_scale, texture_scale, projectile_type, 200))
+                println("yes")
+            }
+        }
+    }
 
     // TODO: sounds
 
-    // Move the players projectile if one exists
-    game!!.getProjectiles().filter { p -> p.type == ProjectileType.PLAYER }
-            .forEach { player_p -> player_p.step(player_projectile_speed * Gdx.graphics.deltaTime) }
-
-    // TODO: step invader projectiles
+    // Move the projectiles
+    game!!.getProjectiles().forEach { p -> p.step(getProjectileSpeed(p.type) * frame_delta) }
 
     // Check for any collisions in projectiles
     game!!.getProjectiles().forEach nextProjectile@{p ->
@@ -49,9 +66,12 @@ private fun gamePlayLogic() {
                     p.collidesWith(player!!) -> {                               // Invader projectile hit player
                         projectiles_destroyed.add(p)
                         game!!.playerLoseLife()
-                    } else -> game!!.getProjectiles().forEach { p_invader ->    // Projectile collides with another projectile
-                        if (p.collidesWith(p_invader))
-                            projectiles_destroyed.addAll(arrayOf(p, p_invader))
+                    } else -> game!!.getProjectiles()                           // Projectile collides with another projectile
+                            .filter { p_player ->  p_player.type == ProjectileType.PLAYER }
+                            .forEach { p_player -> if (p.collidesWith(p_player)){
+                                projectiles_destroyed.add(p)
+                                projectiles_destroyed.add(p_player)
+                            }
                     }
                 }
             p.y >= screen.top -> projectiles_destroyed.add(p)                   // Player projectile left screen
@@ -108,6 +128,23 @@ private fun addScore(type: InvaderType): Int {
         InvaderType.FIGHTER -> 100
         InvaderType.BOMBER -> 150
         InvaderType.MOTHER_SHIP -> 200
+    }
+}
+
+private fun getProjectileType(type: InvaderType): ProjectileType {
+    return when(type) {
+        InvaderType.FIGHTER -> ProjectileType.FIGHTER
+        InvaderType.BOMBER -> ProjectileType.BOMBER
+        InvaderType.MOTHER_SHIP -> ProjectileType.MOTHER_SHIP
+    }
+}
+
+private fun getProjectileSpeed(type: ProjectileType): Float {
+    return when(type) {
+        ProjectileType.PLAYER -> player_projectile_speed
+        ProjectileType.FIGHTER -> fighter_projectile_speed
+        ProjectileType.BOMBER -> bomber_projectile_speed
+        ProjectileType.MOTHER_SHIP -> mother_ship_projectile_speed
     }
 }
 

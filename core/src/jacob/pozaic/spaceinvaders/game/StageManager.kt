@@ -32,6 +32,11 @@ internal fun startMenu() {
     val table = Table()
     table.setFillParent(true)
 
+    val misc_skin = Skin()
+    misc_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Misc.atlas")))
+    val title = Image(misc_skin.getDrawable("game-title"))
+    table.add(title).width(450F).height(100F).pad(5F).row()
+
     val btn_skin = Skin()
     btn_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Buttons.atlas")))
 
@@ -49,7 +54,7 @@ internal fun startMenu() {
             startGame()
         }
     })
-    table.add(start_button).width(300F).height(100F).pad(1F)
+    table.add(start_button).width(280F).height(100F).pad(5F)
 
     val btn_option_style = TextButton.TextButtonStyle()
     with(btn_option_style) {
@@ -65,7 +70,7 @@ internal fun startMenu() {
         }
     })
     table.row()
-    table.add(option_button).width(300F).height(100F).pad(1F)
+    table.add(option_button).width(280F).height(100F).pad(5F)
 
     val btn_quit_style = TextButton.TextButtonStyle()
     with(btn_quit_style) {
@@ -82,7 +87,7 @@ internal fun startMenu() {
         }
     })
     table.row()
-    table.add(quit_button).width(300F).height(100F).pad(1F)
+    table.add(quit_button).width(280F).height(100F).pad(5F)
 
     stg_start.addActor(table)
 
@@ -117,7 +122,7 @@ internal fun startMenuOptions() {
             }
         }
     })
-    table.add(btn_use_acc).width(300F).height(100F).pad(1F)
+    table.add(btn_use_acc).width(280F).height(100F).pad(5F)
 
     if(draw_arrows) {
         btn_use_acc.isDisabled = true
@@ -139,7 +144,7 @@ internal fun startMenuOptions() {
         }
     })
     table.row()
-    table.add(btn_ret_main).width(300F).height(100F).pad(1F)
+    table.add(btn_ret_main).width(280F).height(100F).pad(5F)
 
     stg_options.addActor(table)
 

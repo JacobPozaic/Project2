@@ -1,17 +1,10 @@
 
-Buttons.png
-size: 2048,256
+Misc.png
+size: 1024,256
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-button-down
-  rotate: false
-  xy: 604, 2
-  size: 600, 200
-  orig: 600, 200
-  offset: 0, 0
-  index: -1
-button-up
+game-title
   rotate: false
   xy: 2, 2
   size: 600, 200
