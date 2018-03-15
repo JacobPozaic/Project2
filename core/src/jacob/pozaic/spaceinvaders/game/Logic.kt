@@ -118,6 +118,9 @@ private fun gamePlayLogic() {
         invadersUpdated = false
     }
 
+    // Update score
+    if(score_label != null) score_label!!.setText("Score: $player_score")
+
     // Lose condition
     if(game_over) gameOver()
 

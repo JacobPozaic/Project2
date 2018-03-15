@@ -21,6 +21,8 @@ internal val stg_game = Stage(FitViewport(screen.width, screen.height), batch)
 
 private val ui_font = BitmapFont()
 
+internal var score_label: Label? = null
+
 internal var arrow_left: Button? = Button()
 internal var arrow_right: Button? = Button()
 
@@ -156,18 +158,26 @@ internal fun startMenuOptions() {
 internal fun startGame() {
     val input = InputMultiplexer()
 
+    val label_skin_style = Label.LabelStyle()
+    label_skin_style.font = ui_font
+
     val player_lives_table = Table()
     player_lives_table.setFillParent(true)
 
-    val lives_skin_style = Label.LabelStyle()
-    lives_skin_style.font = ui_font
-    val lives_label = Label("Lives: ", lives_skin_style)
+    val lives_label = Label("Lives: ", label_skin_style)
     with(player_lives_table) {
         add(lives_label)
         player_lives_img!!.forEach { image -> add(image).size(ui_texture_scale).padLeft(5F) }
         padLeft(5F).padTop(5F).left().top()
     }
     stg_game.addActor(player_lives_table)
+
+    val player_score_table = Table()
+    player_score_table.setFillParent(true)
+    score_label = Label("Score: 0", label_skin_style)
+    player_score_table.add(score_label).width(100F)
+    player_score_table.padRight(5F).padTop(5F).right().top()
+    stg_game.addActor(player_score_table)
 
     if(draw_arrows) {
         val btn_skin = Skin()

@@ -37,9 +37,8 @@ class WaveManager(private val game: SpaceInvaders) {
         for(y in 0..4) {
             // Depending on what row, different invaders will spawn
             when(y){
-                0, 1 -> invader_type = EntityType.FIGHTER
-                2, 3 -> invader_type = EntityType.BOMBER
-                4    -> invader_type = EntityType.MOTHER_SHIP
+                0, 1, 2 -> invader_type = EntityType.BOMBER
+                3, 4    -> invader_type = EntityType.FIGHTER
             }
 
             val tex_default = game.entity(invader_type).textures[0]
