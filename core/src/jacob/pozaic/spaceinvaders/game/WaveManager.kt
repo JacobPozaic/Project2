@@ -8,11 +8,11 @@ import jacob.pozaic.spaceinvaders.entity.Invader
 class WaveManager(private val game: SpaceInvaders) {
     private var current_wave: List<MoveGroup>? = null
 
-    fun update(delta: Float) {
+    fun update() {
         createWave()
         // Each frame update the Wave, in turn updating all Invaders
         if(current_wave != null)
-            current_wave!!.forEach { move_group -> move_group.move(delta) }
+            current_wave!!.forEach { move_group -> move_group.move() }
     }
 
     private fun createWave(){
@@ -91,6 +91,7 @@ class WaveManager(private val game: SpaceInvaders) {
         move_pattern.addMovement(move_down_2)
         //TODO: finish adding movement parts
 
+        move_pattern.setTouchEdgeToContinue(true)
         move_pattern.moveGroupToStart()
         return listOf(move_pattern)
     }

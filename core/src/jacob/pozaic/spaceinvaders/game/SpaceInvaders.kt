@@ -55,7 +55,7 @@ internal const val y_offset_lose  = 100F
 internal val screen: Screen = Screen(800F, 480F, 0F, 0F, 0F, 0F, 400F, 240F, 0F, 0F)
 
 // The pixel location on the y axis where the invaders win if reached
-internal const val invader_win_distance = y_offset_lose + texture_height //TODO: check this condition
+internal const val invader_win_distance = y_offset_lose + (texture_height / 2)
 
 // Player parameters
 // The degree to which the screen should be tilted before moving in that direction

@@ -1,8 +1,9 @@
 package jacob.pozaic.spaceinvaders.entity
 
 import jacob.pozaic.spaceinvaders.ai.MoveGroup
-import jacob.pozaic.spaceinvaders.ai.Pos
 import jacob.pozaic.spaceinvaders.game.EntityType
+import jacob.pozaic.spaceinvaders.game.gameOver
+import jacob.pozaic.spaceinvaders.game.invader_win_distance
 
 class Invader(
         type: EntityType,
@@ -11,12 +12,14 @@ class Invader(
         scale: Float,
         val move_group: MoveGroup): Entity(type, posX, posY, scale, scale) {
 
-    var last_step_time = 0L
+    var can_touch_ground = false
 
-    var move_group_offset = Pos(0F, 0F)
+    var last_step_time = 0L
 
     override fun act(delta: Float) {
         super.act(delta)
-        //TODO: check if they reach the ground
+
+        if(can_touch_ground && getCenter().y <= invader_win_distance)
+            gameOver()
     }
 }

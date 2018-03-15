@@ -41,7 +41,7 @@ private fun gamePlayLogic() {
     val frame_delta = Gdx.graphics.deltaTime
 
     // Update the wave and move all Invaders
-    WM!!.update(frame_delta)
+    WM!!.update()
 
     // Invader shoot projectiles
     val num_invaders = game!!.getInvaders().size
