@@ -12,7 +12,7 @@ class Invader(
         scale: Float,
         val move_group: MoveGroup): Entity(type, posX, posY, scale, scale) {
 
-    var can_touch_ground = false
+    var can_touch_ground = true
 
     var last_step_time = 0L
 

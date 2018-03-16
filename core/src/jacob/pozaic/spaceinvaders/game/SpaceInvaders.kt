@@ -129,6 +129,12 @@ private val entity_params: HashMap<EntityType, EntityParams> = hashMapOf(
                 score_value = 0,
                 projectile_type = null,
                 texture_cycle_delay = 200L,
+                textures = ArrayList())),
+        Pair(EntityType.EXPLODE, EntityParams(
+                move_Speed = 250F,
+                score_value = 0,
+                projectile_type = null,
+                texture_cycle_delay = 0L,
                 textures = ArrayList()))
 )
 

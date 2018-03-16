@@ -2,6 +2,7 @@ package jacob.pozaic.spaceinvaders.game
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.TimeUtils
+import jacob.pozaic.spaceinvaders.entity.Explode
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Projectile
 import java.util.*
@@ -90,7 +91,7 @@ private fun gamePlayLogic() {
                     game!!.removeInvader(invader)
                     val score = game!!.entity(invader.type).score_value
                     player_score += score
-                    //TODO: show toast with score, and invader death animation
+                    stg_game.addActor(Explode(score, invader.getCenter(), invader.scaleX))
                     return@nextProjectile
                 }
             }

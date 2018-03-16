@@ -19,7 +19,7 @@ abstract class Entity (
 
     private var sprite: Sprite? = null
 
-    private var current_texture: Int = 0
+    protected var current_texture: Int = 0
     private var last_texture_swap = 0L
 
     init {
@@ -31,11 +31,11 @@ abstract class Entity (
         this.setOrigin(0F, 0F)
     }
 
-    fun setPos(pos: Pos) {
+    open fun setPos(pos: Pos) {
         setPos(pos.x, pos.y)
     }
 
-    fun setPos(x: Float, y: Float) {
+    open fun setPos(x: Float, y: Float) {
         sprite!!.setPosition(x - (sprite!!.width / 2), y - (sprite!!.height / 2))
         setBounds(sprite!!.x, sprite!!.y, sprite!!.width, sprite!!.height)
     }

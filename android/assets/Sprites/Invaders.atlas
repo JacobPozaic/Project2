@@ -18,6 +18,20 @@ Bomber-2
   orig: 128, 128
   offset: 0, 0
   index: -1
+Explode-1
+  rotate: false
+  xy: 522, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+Explode-2
+  rotate: false
+  xy: 652, 2
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
 Fighter-1
   rotate: false
   xy: 262, 2

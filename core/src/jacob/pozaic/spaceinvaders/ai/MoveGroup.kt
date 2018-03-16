@@ -5,7 +5,6 @@ import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.game.SpaceInvaders
 import jacob.pozaic.spaceinvaders.game.screen
-import jacob.pozaic.spaceinvaders.game.texture_width
 
 class MoveGroup(private val game: SpaceInvaders){
     // The list of movements to be done
@@ -154,9 +153,7 @@ class MoveGroup(private val game: SpaceInvaders){
     }
 
     fun getGroupHeight(): Float {
-        calculateGroup()// TODO: moving should be done only from original center, cannot adjust end point, calculate messes with verticle movement
-        //what if keep original rectangle, but continue moving in direction with calculated rect until wall is hit?
-        // or on column/row destroyed update end position
+        calculateGroup()
         return group_height
     }
 }
