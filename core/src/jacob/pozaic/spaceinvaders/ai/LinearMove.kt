@@ -2,11 +2,16 @@ package jacob.pozaic.spaceinvaders.ai
 
 import com.badlogic.gdx.utils.TimeUtils
 
+/**
+ * A movement implementation that travels directly from point A to point B
+ */
 class LinearMove: Move() {
+    // Set a continious movement pattern (no delay on steps)
     override fun continious(current_pos: Pos, delta: Float): MoveResult {
         return current_pos.moveToward(end, step_speed * delta)
     }
 
+    // Set a step by distance movement pattern (step x distance in pixels every time y time has passed since the last step)
     override fun stepDistance(current_pos: Pos, last_step_time: Long): MoveResult {
         // Moving by pixels per step
         if(TimeUtils.timeSinceMillis(last_step_time) >= step_freq)
