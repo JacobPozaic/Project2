@@ -82,7 +82,8 @@ internal fun startMenu() {
     quit_button.addListener(object : ChangeListener() {
         override fun changed(event: ChangeEvent?, actor: Actor?) {
             Gdx.app.exit()
-            // TODO: this doesn't end the process, also make sure to dispose all resources
+            // TODO: make sure to dispose all resources
+            System.exit(0)
         }
     })
     table.row()
@@ -254,7 +255,8 @@ internal fun gameOver() {
     quit_button.addListener(object : ChangeListener() {
         override fun changed(event: ChangeEvent?, actor: Actor?) {
             Gdx.app.exit()
-            // TODO: this doesn't end the process, also make sure to dispose all resources
+            // TODO: make sure to dispose all resources
+            System.exit(0)
         }
     })
     table.add(quit_button).width(280F).height(100F).pad(5F)
