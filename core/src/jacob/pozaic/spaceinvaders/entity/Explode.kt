@@ -3,6 +3,7 @@ package jacob.pozaic.spaceinvaders.entity
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.ai.Pos
 import jacob.pozaic.spaceinvaders.game.EntityType
@@ -26,14 +27,14 @@ class Explode(
         val style = Label.LabelStyle()
         style.font = BitmapFont()
         text = Label("$score", style)
+        text!!.setAlignment(Align.center)
         text!!.setScale(scaleX)
         setPos(pos)
     }
 
     override fun setPos(pos: Pos) {
         super.setPos(pos)
-        val rect = getRect() // get rekt son
-        text!!.setPosition(pos.x - (rect.width / 2), pos.y - (rect.height / 2))
+        text!!.setPosition(pos.x - (text!!.width / 2), pos.y - (text!!.height / 2))
     }
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
