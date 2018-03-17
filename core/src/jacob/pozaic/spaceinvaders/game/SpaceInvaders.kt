@@ -73,7 +73,6 @@ internal const val max_enemy_shoot_delay = 3000L
 
 //---------------------------------------
 data class EntityParams(
-        //val textures: ArrayList<TextureRegion>, // TODO: Change how textures are stored
         val move_Speed: Float,
         val score_value: Int,
         val projectile_type: EntityType?,
@@ -156,8 +155,8 @@ internal var draw_arrows = false
 
 // Game stats
 internal var player_lives = 3
-internal var player_score = 0 // TODO: display on loss AND SHOW IN TOP CORNER
-internal var wave_number = 0 // TODO: display on loss
+internal var player_score = 0
+internal var wave_number = 0
 
 // GUI
 internal var player_lives_img: List<Image>? = null
@@ -219,9 +218,8 @@ class SpaceInvaders : ApplicationAdapter() {
     override fun resize(width: Int, height: Int) {
         when(game_state){
             GameState.SHOW_GAME_OPTIONS -> stg_options.viewport.update(width, height)
-            GameState.SHOW_GAME_OVER -> stg_game.viewport.update(width, height)
+            GameState.SHOW_GAME_OVER -> stg_game_over.viewport.update(width, height)
             GameState.SHOW_GAME_PLAY -> stg_game.viewport.update(width, height)
-            GameState.SHOW_GAME_PAUSE -> stg_game.viewport.update(width, height)
             GameState.SHOW_GAME_START -> stg_start.viewport.update(width, height)
         }
     }

@@ -29,8 +29,6 @@ internal fun logicLoop() {
     // Determine what logic path to use
     when(game_state) {
         GameState.SHOW_GAME_PLAY  -> gamePlayLogic()
-        GameState.SHOW_GAME_PAUSE -> gamePauseLogic()
-        GameState.SHOW_GAME_OVER  -> gameOverLogic()
     }
 }
 
@@ -127,14 +125,6 @@ private fun gamePlayLogic() {
 
     // Get each actor on the stage to act
     stg_game.act(Gdx.graphics.deltaTime)
-}
-
-private fun gamePauseLogic() {
-    //TODO:
-}
-
-private fun gameOverLogic() {
-    //TODO:
 }
 
 /**

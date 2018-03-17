@@ -23,7 +23,6 @@ fun loadGameTextures(entity_params: HashMap<EntityType, EntityParams>) {
     entity_params[EntityType.PLAYER_PROJECTILE]!!.textures.add(projectile_tex.findRegion("Projectile-Player-1"))
     entity_params[EntityType.PLAYER_PROJECTILE]!!.textures.add(projectile_tex.findRegion("Projectile-Player-2"))
 
-    //TODO: invader projectile textures
     entity_params[EntityType.FIGHTER_PROJECTILE]!!.textures.add(projectile_tex.findRegion("Projectile-Player-1"))
     entity_params[EntityType.FIGHTER_PROJECTILE]!!.textures.add(projectile_tex.findRegion("Projectile-Player-2"))
     entity_params[EntityType.BOMBER_PROJECTILE]!!.textures.add(projectile_tex.findRegion("Projectile-Player-1"))

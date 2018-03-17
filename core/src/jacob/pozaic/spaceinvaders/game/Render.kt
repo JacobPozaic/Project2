@@ -16,7 +16,6 @@ internal fun renderLoop() {
         GameState.SHOW_GAME_START   -> startMenuRender()
         GameState.SHOW_GAME_OPTIONS -> optionMenuRender()
         GameState.SHOW_GAME_PLAY    -> gamePlayRender()
-        GameState.SHOW_GAME_PAUSE   -> gamePauseRender()
         GameState.SHOW_GAME_OVER    -> gameOverRender()
     }
 }
@@ -45,11 +44,14 @@ private fun gamePlayRender() {
     stg_game.draw()
 }
 
-private fun gamePauseRender() {
-    gamePlayRender()
-    //TODO: render pause menu stuff
-}
-
 private fun gameOverRender() {
-    //TODO:
+    batch.begin()
+
+    // Draw the background
+    batch.draw(bkg, 0F, 0F, screen.width, screen.height)
+
+    batch.end()
+    stg_game_over.camera.update()
+    stg_game_over.viewport.apply()
+    stg_game_over.draw()
 }

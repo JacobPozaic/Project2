@@ -9,15 +9,15 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.FitViewport
 import jacob.pozaic.spaceinvaders.input.GameInputHandler
-import jacob.pozaic.spaceinvaders.input.GameOverInputHandler
-import jacob.pozaic.spaceinvaders.input.PauseMenuInputHandler
 
 internal val batch = SpriteBatch()
 internal val stg_start = Stage(FitViewport(screen.width, screen.height), batch)
 internal val stg_options = Stage(FitViewport(screen.width, screen.height), batch)
 internal val stg_game = Stage(FitViewport(screen.width, screen.height), batch)
+internal val stg_game_over = Stage(FitViewport(screen.width, screen.height), batch)
 
 private val ui_font = BitmapFont()
 
@@ -34,7 +34,7 @@ internal fun startMenu() {
     val misc_skin = Skin()
     misc_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Misc.atlas")))
     val title = Image(misc_skin.getDrawable("game-title"))
-    table.add(title).width(450F).height(100F).pad(5F).row()
+    table.add(title).width(450F).height(150F).pad(5F).row()
 
     val btn_skin = Skin()
     btn_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Buttons.atlas")))
@@ -219,21 +219,51 @@ internal fun startGame() {
     game_state = GameState.SHOW_GAME_PLAY
 }
 
-internal fun pauseGame() {
-    // TODO: pause the game and display the pause menu
-    // Set the input processors to use
-    input_processors.clear()
-    input_processors.addProcessor(PauseMenuInputHandler())
-
-    // Set the game state
-    game_state = GameState.SHOW_GAME_PAUSE
-}
-
 internal fun gameOver() {
-    // TODO: End the game, show the final score, etc.
+    // Define the UI components
+    val table = Table()
+    table.setFillParent(true)
+
+    val misc_skin = Skin()
+    misc_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Misc.atlas")))
+    val title = Image(misc_skin.getDrawable("game-over"))
+    table.add(title).width(450F).height(150F).pad(5F).row()
+
+    val label_style = Label.LabelStyle()
+    label_style.font = ui_font
+
+    val final_score_label = Label("Final Score: $player_score", label_style)
+    final_score_label.setAlignment(Align.center)
+    table.add(final_score_label).width(450F).height(50F).pad(5F).row()
+
+    val waves_completed_label = Label("Waves Completed: ${wave_number - 1}", label_style)
+    waves_completed_label.setAlignment(Align.center)
+    table.add(waves_completed_label).width(450F).height(50F).pad(5F).row()
+
+    val btn_skin = Skin()
+    btn_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Buttons.atlas")))
+
+    val btn_quit_style = TextButton.TextButtonStyle()
+    with(btn_quit_style) {
+        font = ui_font
+        up = btn_skin.getDrawable("button-up")
+        down = btn_skin.getDrawable("button-down")
+        checked = btn_skin.getDrawable("button-up")
+    }
+    val quit_button = TextButton("Quit", btn_quit_style)
+    quit_button.addListener(object : ChangeListener() {
+        override fun changed(event: ChangeEvent?, actor: Actor?) {
+            Gdx.app.exit()
+            // TODO: this doesn't end the process, also make sure to dispose all resources
+        }
+    })
+    table.add(quit_button).width(280F).height(100F).pad(5F)
+
+    stg_game_over.addActor(table)
+
     // Set the input processors to use
     input_processors.clear()
-    input_processors.addProcessor(GameOverInputHandler())
+    input_processors.addProcessor(stg_game_over)
 
     // Set the game state
     game_state = GameState.SHOW_GAME_OVER
