@@ -8,16 +8,18 @@ import jacob.pozaic.spaceinvaders.entity.Projectile
 import java.util.*
 
 // Stores a list of removed projectiles so that when checking collisions all projectiles are still in-tact until iterated through
-private val projectiles_destroyed = ArrayList<Projectile>()
+internal val projectiles_destroyed = ArrayList<Projectile>()
 
 // The time that the invaders and player last shot
-private var enemy_last_shoot_time = 0L
-private var player_last_shot_time = 0L
+internal var enemy_last_shoot_time = 0L
+internal var player_last_shot_time = 0L
 
 /**
  * Called every frame before render
  */
 internal fun logicLoop() {
+    if(shouldRestart) game_man!!.restartGame()
+
     // Update player position if using movement arrows
     if(draw_arrows){
         val x_pos = player!!.getCenter().x

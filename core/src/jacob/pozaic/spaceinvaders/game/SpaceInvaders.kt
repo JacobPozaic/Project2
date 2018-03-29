@@ -4,8 +4,14 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Button
 import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.utils.viewport.FitViewport
+import com.sun.org.apache.xpath.internal.operations.Bool
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.entity.Player
 import jacob.pozaic.spaceinvaders.entity.Projectile
@@ -149,6 +155,7 @@ internal var projectilesUpdated = false
 
 // True if the invaders have reached the ground
 internal var game_over = false
+internal var shouldRestart = false
 
 // Disable tilt input and draw arrows to move the player instead
 internal var draw_arrows = false
@@ -161,14 +168,73 @@ internal var wave_number = 0
 // GUI
 internal var player_lives_img: List<Image>? = null
 
-class SpaceInvaders : ApplicationAdapter() {
+// Game instance manager
+internal var game_man: SpaceInvadersInstanceMan? = null
+
+class SpaceInvadersInstanceMan : ApplicationAdapter() {
+    override fun create() {
+        game_man = this
+        game = SpaceInvaders()
+        game!!.create()
+    }
+
+    override fun render() {
+        game!!.render()
+    }
+
+    override fun resize(width: Int, height: Int) {
+        game!!.resize(width, height)
+    }
+
+    internal fun restartGame(){
+        shouldRestart = false
+
+        WM = null
+        player = null
+
+        input_processors.clear()
+        game_state = GameState.SHOW_GAME_START
+
+        invadersUpdated = false
+        projectilesUpdated = false
+
+        game_over = false
+
+        draw_arrows = false
+
+        player_lives = 3
+        player_score = 0
+        wave_number = 0
+
+        projectiles_destroyed.clear()
+        enemy_last_shoot_time = 0L
+        player_last_shot_time = 0L
+
+        batch = SpriteBatch()
+        stg_start = Stage(FitViewport(screen.width, screen.height), batch)
+        stg_options = Stage(FitViewport(screen.width, screen.height), batch)
+        stg_game = Stage(FitViewport(screen.width, screen.height), batch)
+        stg_game_over = Stage(FitViewport(screen.width, screen.height), batch)
+
+        score_label = null
+
+        arrow_left = Button()
+        arrow_right = Button()
+
+        game = SpaceInvaders()
+        game!!.create()
+    }
+}
+
+
+class SpaceInvaders() {
     // A list of each invader currently on screen
     private val invaders = ArrayList<Invader>()
 
     // A list of each projectile currently on screen
     private val projectiles = ArrayList<Projectile>()
 
-    override fun create() {
+    fun create() {
         game = this
 
         loadGameTextures(entity_params)
@@ -207,7 +273,7 @@ class SpaceInvaders : ApplicationAdapter() {
         startMenu()
     }
 
-    override fun render() {
+    fun render() {
         // Logic
         logicLoop()
 
@@ -215,7 +281,7 @@ class SpaceInvaders : ApplicationAdapter() {
         renderLoop()
     }
 
-    override fun resize(width: Int, height: Int) {
+    fun resize(width: Int, height: Int) {
         when(game_state){
             GameState.SHOW_GAME_OPTIONS -> stg_options.viewport.update(width, height)
             GameState.SHOW_GAME_OVER -> stg_game_over.viewport.update(width, height)

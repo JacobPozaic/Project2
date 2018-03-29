@@ -13,11 +13,11 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.FitViewport
 import jacob.pozaic.spaceinvaders.input.GameInputHandler
 
-internal val batch = SpriteBatch()
-internal val stg_start = Stage(FitViewport(screen.width, screen.height), batch)
-internal val stg_options = Stage(FitViewport(screen.width, screen.height), batch)
-internal val stg_game = Stage(FitViewport(screen.width, screen.height), batch)
-internal val stg_game_over = Stage(FitViewport(screen.width, screen.height), batch)
+internal var batch = SpriteBatch()
+internal var stg_start = Stage(FitViewport(screen.width, screen.height), batch)
+internal var stg_options = Stage(FitViewport(screen.width, screen.height), batch)
+internal var stg_game = Stage(FitViewport(screen.width, screen.height), batch)
+internal var stg_game_over = Stage(FitViewport(screen.width, screen.height), batch)
 
 private val ui_font = BitmapFont()
 
@@ -235,11 +235,11 @@ internal fun gameOver() {
 
     val final_score_label = Label("Final Score: $player_score", label_style)
     final_score_label.setAlignment(Align.center)
-    table.add(final_score_label).width(450F).height(50F).pad(5F).row()
+    table.add(final_score_label).width(450F).height(30F).pad(5F).row()
 
     val waves_completed_label = Label("Waves Completed: ${wave_number - 1}", label_style)
     waves_completed_label.setAlignment(Align.center)
-    table.add(waves_completed_label).width(450F).height(50F).pad(5F).row()
+    table.add(waves_completed_label).width(450F).height(30F).pad(5F).row()
 
     val btn_skin = Skin()
     btn_skin.addRegions(TextureAtlas(Gdx.files.internal("GUI/Buttons.atlas")))
@@ -251,6 +251,13 @@ internal fun gameOver() {
         down = btn_skin.getDrawable("button-down")
         checked = btn_skin.getDrawable("button-up")
     }
+    val restart_button = TextButton("Restart Game", btn_quit_style)
+    restart_button.addListener(object : ChangeListener() {
+        override fun changed(event: ChangeEvent?, actor: Actor?) {
+            shouldRestart = true
+        }
+    })
+    table.add(restart_button).width(280F).height(100F).pad(5F).row()
     val quit_button = TextButton("Quit", btn_quit_style)
     quit_button.addListener(object : ChangeListener() {
         override fun changed(event: ChangeEvent?, actor: Actor?) {
