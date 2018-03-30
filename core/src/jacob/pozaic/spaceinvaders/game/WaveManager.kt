@@ -89,10 +89,58 @@ class WaveManager(private val game: SpaceInvaders) {
             setStepByDistance(0.5F, 20F)
         }
         move_pattern.addMovement(move_down_2)
-        //TODO: finish adding movement parts
+
+        val move_across_3 = LinearMove()
+        with(move_across_3) {
+            start(adjustPoint(Pos(screen.left, move_down_2.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.right, move_down_2.end.y), g_width, g_height))
+            setStepByDistance(0.5F, 10F)
+        }
+        move_pattern.addMovement(move_across_3)
+
+        val move_down_3 = LinearMove()
+        with(move_down_3){
+            start(adjustPoint(Pos(screen.right, move_across_3.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.right, move_across_3.end.y - 20), g_width, g_height))
+            setStepByDistance(0.5F, 20F)
+        }
+        move_pattern.addMovement(move_down_3)
+
+        val move_across_4 = LinearMove()
+        with(move_across_4) {
+            start(adjustPoint(Pos(screen.right, move_down_3.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.left, move_down_3.end.y), g_width, g_height))
+            setStepByDistance(0.5F, 10F)
+        }
+        move_pattern.addMovement(move_across_4)
+
+        val move_down_4 = LinearMove()
+        with(move_down_4){
+            start(adjustPoint(Pos(screen.left, move_across_4.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.left, move_across_4.end.y - 20), g_width, g_height))
+            setStepByDistance(0.5F, 20F)
+        }
+        move_pattern.addMovement(move_down_4)
+
+        val move_across_5 = LinearMove()
+        with(move_across_5) {
+            start(adjustPoint(Pos(screen.left, move_down_4.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.right, move_down_4.end.y), g_width, g_height))
+            setStepByDistance(0.5F, 10F)
+        }
+        move_pattern.addMovement(move_across_5)
+
+        val move_down_5 = LinearMove()
+        with(move_down_5){
+            start(adjustPoint(Pos(screen.right, move_across_5.end.y), g_width, g_height))
+            end(adjustPoint(Pos(screen.right, move_across_5.end.y - 20), g_width, g_height))
+            setStepByDistance(0.5F, 20F)
+        }
+        move_pattern.addMovement(move_down_5)
 
         move_pattern.setTouchEdgeToContinue(true)
         move_pattern.moveGroupToStart()
+        move_pattern.calculateGroup()
         return listOf(move_pattern)
     }
 }

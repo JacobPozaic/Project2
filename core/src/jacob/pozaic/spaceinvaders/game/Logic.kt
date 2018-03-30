@@ -41,27 +41,6 @@ private fun gamePlayLogic() {
     // Gets the time since the last frame
     val frame_delta = Gdx.graphics.deltaTime
 
-    // Update the wave and move all Invaders
-    WM!!.update()
-
-    // Invader shoot projectiles
-    val num_invaders = game!!.getInvaders().size
-    if(num_invaders > 0) {
-        // Check if the maximum number of invader projectiles has been reached
-        if(game!!.getProjectiles().filter { p -> p.type != EntityType.PLAYER_PROJECTILE }.size < max_enemy_projectiles) {
-            // Check if the time since the last enemy shot is greater than the minimum shoot delay and give chance to an enemy firing, or if the time since the last shot is greater than the max delay then fire
-            if((TimeUtils.timeSinceMillis(enemy_last_shoot_time) > min_enemy_shoot_delay && enemy_shoot_chance * frame_delta >= rand.nextInt(100))
-                    || TimeUtils.timeSinceMillis(enemy_last_shoot_time) > max_enemy_shoot_delay) {
-                enemy_last_shoot_time = TimeUtils.millis()
-                // Randomly choose an invader to shoot the projectile
-                val invader_shooting = game!!.getInvaders()[rand.nextInt(num_invaders)]
-                val pos = invader_shooting.getCenter()
-                val projectile_type = game!!.entity(invader_shooting.type).projectile_type
-                game!!.addProjectile(Projectile(projectile_type!!, pos.x, pos.y, texture_scale))
-            }
-        }
-    }
-
     // TODO: sounds
 
     // Move the projectiles
@@ -117,6 +96,27 @@ private fun gamePlayLogic() {
                 .forEach { actor -> actor.remove() }
         game!!.getInvaders().forEach { invader -> stg_game.addActor(invader) }
         invadersUpdated = false
+    }
+
+    // Update the wave and move all Invaders, done after updating what invaders are on screen so prevent movement being affect by removed invaders
+    WM!!.update()
+
+    // Invader shoot projectiles
+    val num_invaders = game!!.getInvaders().size
+    if(num_invaders > 0) {
+        // Check if the maximum number of invader projectiles has been reached
+        if(game!!.getProjectiles().filter { p -> p.type != EntityType.PLAYER_PROJECTILE }.size < max_enemy_projectiles) {
+            // Check if the time since the last enemy shot is greater than the minimum shoot delay and give chance to an enemy firing, or if the time since the last shot is greater than the max delay then fire
+            if((TimeUtils.timeSinceMillis(enemy_last_shoot_time) > min_enemy_shoot_delay && enemy_shoot_chance * frame_delta >= rand.nextInt(100))
+                    || TimeUtils.timeSinceMillis(enemy_last_shoot_time) > max_enemy_shoot_delay) {
+                enemy_last_shoot_time = TimeUtils.millis()
+                // Randomly choose an invader to shoot the projectile
+                val invader_shooting = game!!.getInvaders()[rand.nextInt(num_invaders)]
+                val pos = invader_shooting.getCenter()
+                val projectile_type = game!!.entity(invader_shooting.type).projectile_type
+                game!!.addProjectile(Projectile(projectile_type!!, pos.x, pos.y, texture_scale))
+            }
+        }
     }
 
     // Update score

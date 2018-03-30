@@ -33,11 +33,6 @@ class MoveGroup(private val game: SpaceInvaders){
         // if no movement components are left then don't move
         if(movement.isEmpty()) return
 
-        val group_center_old = group_center
-
-        // Recalculate the group bounds as they are out of date from the last movement / not initially calculated
-        calculateGroup()
-
         // Has the current move component been completed
         var segment_complete = false
 
@@ -56,7 +51,7 @@ class MoveGroup(private val game: SpaceInvaders){
             var edge_invader = invaders[0]
 
             // Don't bother calculating a bunch of stuff if it hasn't been long enough to move anyways
-            if(!move_segment.nextPosition(edge_invader.getCenter(), delta, edge_invader.last_step_time).success) return
+            if(!move_segment.nextPosition(edge_invader.getCenter(), edge_invader.getCenter().sub(group_center), delta, edge_invader.last_step_time).success) return
 
             // Check if the group is moving to the right or to the left, and set the appropriate edge_invader
             if(invaders[0].getCenter().x < move_segment.end.x) {
@@ -70,14 +65,11 @@ class MoveGroup(private val game: SpaceInvaders){
                 }
 
                 val group_offset = edge_invader.getCenter().sub(group_center)
-                val pos = edge_invader.getCenter().sub(group_offset)
-                val test_move = move_segment.nextPosition(pos, delta, edge_invader.last_step_time)
+                val pos = edge_invader.getCenter()
+                val test_move = move_segment.nextPosition(pos, group_offset, delta, edge_invader.last_step_time)
 
-                if(test_move.pos.add(group_offset).x != edge_invader.getCenter().x) {
-                    group_center = Pos(group_center.x, group_center_old.y)
-                }
                 if(test_move.pos.add(group_offset).x >= screen.right) segment_complete = true
-                else if(test_move.reached_target) move_segment.end(Pos(move_segment.end.x, move_segment.end.y))
+                //else if(test_move.reached_target) move_segment.end(Pos(move_segment.end.x, move_segment.end.y))
             } else if(invaders[0].getCenter().x > move_segment.end.x) {
                 // Moving left
                 var minX = invaders[0].getCenter().x
@@ -89,23 +81,25 @@ class MoveGroup(private val game: SpaceInvaders){
                 }
 
                 val group_offset = edge_invader.getCenter().sub(group_center)
-                val pos = edge_invader.getCenter().sub(group_offset)
-                val test_move = move_segment.nextPosition(pos, delta, edge_invader.last_step_time)
+                val pos = edge_invader.getCenter()
+                val test_move = move_segment.nextPosition(pos, group_offset, delta, edge_invader.last_step_time)
 
-                if(test_move.pos.add(group_offset).x != edge_invader.getCenter().x) {
-                    group_center = Pos(group_center.x, group_center_old.y)
-                }
                 if(test_move.pos.add(group_offset).x <= screen.left) segment_complete = true
-                else if(test_move.reached_target) move_segment.end(Pos(move_segment.end.x, move_segment.end.y))
+                //else if(test_move.reached_target) move_segment.end(Pos(move_segment.end.x, move_segment.end.y))
             }
         }
+
+        var dist: Pos? = null
 
         // Move each invader in the move group
         val last_step_time = TimeUtils.millis()
         invaders.forEach { invader ->
             val group_offset = invader.getCenter().sub(group_center)
-            val pos = invader.getCenter().sub(group_offset)
-            val result = move_segment.nextPosition(pos, delta, invader.last_step_time)
+            val pos = invader.getCenter()
+            val result = move_segment.nextPosition(pos, group_offset, delta, invader.last_step_time)
+
+            if(dist == null) dist = result.pos.sub(pos)
+
             if(result.success) {
                 invader.last_step_time = last_step_time
                 if(result.reached_target) {
@@ -129,15 +123,13 @@ class MoveGroup(private val game: SpaceInvaders){
             }
         }
 
-        // Recalculate the group after moving
-        calculateGroup()
+        if(dist != null) updateGroupBounds(dist!!)
 
         // After a segment of movements is completed it can be removed
         if(segment_complete) {
             movement.removeAt(0)
             if(movement.size > 0)
                 movement[0].start(group_center)
-            moveGroupToStart()
         }
     }
 
@@ -193,11 +185,18 @@ class MoveGroup(private val game: SpaceInvaders){
         group_center = Pos(minX + group_width / 2, minY + group_height / 2)
     }
 
+    private fun updateGroupBounds(dist: Pos) {
+        minX += dist.x
+        maxX += dist.x
+        minY += dist.y
+        maxY += dist.y
+        group_center = Pos(minX + group_width / 2, minY + group_height / 2)
+    }
+
     /**
      * Gets the width of the move group
      */
     fun getGroupWidth(): Float {
-        calculateGroup()
         return group_width
     }
 
@@ -205,7 +204,6 @@ class MoveGroup(private val game: SpaceInvaders){
      * Gets the height of the move group
      */
     fun getGroupHeight(): Float {
-        calculateGroup()
         return group_height
     }
 }

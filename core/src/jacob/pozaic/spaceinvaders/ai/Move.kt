@@ -86,11 +86,11 @@ abstract class Move {
     /**
      * Calculates the next movement to be made, returning a MoveResult with the destination position
      */
-    fun nextPosition(current_pos: Pos, delta: Float, last_step_time: Long): MoveResult {
+    fun nextPosition(current_pos: Pos, group_offset: Pos, delta: Float, last_step_time: Long): MoveResult {
         return when(step_type){
-            StepType.STATIONARY -> stationary(current_pos, delta)
-            StepType.CONTINIOUS -> continious(current_pos, delta)
-            StepType.STEP_DISTANCE -> stepDistance(current_pos, last_step_time)
+            StepType.STATIONARY -> stationary(current_pos, group_offset, delta)
+            StepType.CONTINIOUS -> continious(current_pos, group_offset, delta)
+            StepType.STEP_DISTANCE -> stepDistance(current_pos, group_offset, last_step_time)
             else -> MoveResult(current_pos, 0F, false, false)
         }
     }
@@ -99,21 +99,21 @@ abstract class Move {
     /**
      * Overridable function for how to handle stationary movement
      */
-    protected open fun stationary(current_pos: Pos, delta: Float): MoveResult {
+    protected open fun stationary(current_pos: Pos, group_offset: Pos, delta: Float): MoveResult {
         return MoveResult(current_pos, 0F, true, false)
     }
 
     /**
      * Overridable function for how to handle continious movement
      */
-    protected open fun continious(current_pos: Pos, delta: Float): MoveResult{
+    protected open fun continious(current_pos: Pos, group_offset: Pos, delta: Float): MoveResult{
         return MoveResult(current_pos, 0F, true, false)
     }
 
     /**
      * Overridable function for how to handle step by distance movement
      */
-    protected open fun stepDistance(current_pos: Pos, last_step_time: Long): MoveResult{
+    protected open fun stepDistance(current_pos: Pos, group_offset: Pos, last_step_time: Long): MoveResult{
         return MoveResult(current_pos, 0F, true, false)
     }
 
