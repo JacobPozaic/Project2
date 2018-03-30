@@ -1,5 +1,6 @@
 package jacob.pozaic.spaceinvaders.game
 
+import jacob.pozaic.spaceinvaders.ai.ClassicMovement
 import jacob.pozaic.spaceinvaders.ai.LinearMove
 import jacob.pozaic.spaceinvaders.ai.MoveGroup
 import jacob.pozaic.spaceinvaders.ai.Pos
@@ -19,14 +20,42 @@ class WaveManager(private val game: SpaceInvaders) {
         if(game.getInvaders().size == 0) {
             wave_number++
             current_wave = when(wave_number % 5){
-                1 -> defaultWave()
-                2 -> defaultWave()
-                3 -> defaultWave()
-                4 -> defaultWave()
-                5 -> defaultWave()
+                1 -> classicWave()
+                2 -> classicWave()
+                3 -> classicWave()
+                4 -> classicWave()
+                5 -> classicWave()
                 else -> return // This will never happen
             }
         }
+    }
+
+    private fun classicWave(): List<ClassicMovement> {
+        val group = ClassicMovement(game)
+
+        var invader_type = EntityType.FIGHTER
+        for(y in 0..4) {
+            // Depending on what row, different invaders will spawn
+            when(y){
+                0, 1, 2 -> invader_type = EntityType.BOMBER
+                3, 4    -> invader_type = EntityType.FIGHTER
+            }
+
+            val tex_default = game.entity(invader_type).textures[0]
+            val texture_width = tex_default.regionWidth * texture_scale
+            val texture_height = tex_default.regionHeight * texture_scale
+
+            for(x in 0..10) {
+                // Calculate the position of the new Invader in scaled space
+                val posX = (texture_width * x) + (spacing_offset * x) + screen.x_offset
+                val posY = screen.height - texture_height - screen.y_offset - ((texture_height * y) + (spacing_offset * 0.5F * y))
+                // Create a new invader
+                val invader = Invader(invader_type, posX, posY, texture_scale, group)
+                game.addInvader(invader)
+            }
+        }
+
+        return listOf(group)
     }
 
     private fun defaultWave(): List<MoveGroup> {
@@ -142,5 +171,9 @@ class WaveManager(private val game: SpaceInvaders) {
         move_pattern.moveGroupToStart()
         move_pattern.calculateGroup()
         return listOf(move_pattern)
+    }
+
+    fun reduceMoveDelay() {
+        if(current_wave != null) current_wave!!.forEach { wave -> wave.decrementStepDelay() }
     }
 }

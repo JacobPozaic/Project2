@@ -95,6 +95,12 @@ private fun gamePlayLogic() {
         stg_game.actors.filter { actor -> actor is Invader }
                 .forEach { actor -> actor.remove() }
         game!!.getInvaders().forEach { invader -> stg_game.addActor(invader) }
+
+        val size = stg_game.actors.filter { actor -> actor is Invader }.size - game!!.getInvaders().size
+        for(i in 0..size){
+            WM!!.reduceMoveDelay()
+        }
+
         invadersUpdated = false
     }
 

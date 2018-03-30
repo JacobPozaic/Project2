@@ -9,7 +9,7 @@ import jacob.pozaic.spaceinvaders.game.screen
 /**
  * Handles moving groups of Entities at a time
  */
-class MoveGroup(private val game: SpaceInvaders){
+open class MoveGroup(private val game: SpaceInvaders){
     // The list of movements to be done
     private val movement = ArrayList<Move>()
 
@@ -29,7 +29,7 @@ class MoveGroup(private val game: SpaceInvaders){
     /**
      * Move the group
      */
-    fun move() {
+    open fun move() {
         // if no movement components are left then don't move
         if(movement.isEmpty()) return
 
@@ -161,7 +161,7 @@ class MoveGroup(private val game: SpaceInvaders){
     /**
      * Gets a list of all invaders that belong to this move group
      */
-    private fun getInvaders(): List<Invader> = game.getInvaders().filter { invader -> invader.move_group == this }
+    protected fun getInvaders(): List<Invader> = game.getInvaders().filter { invader -> invader.move_group == this }
 
     /**
      * Calculates the bounds of the region occupied by invaders belonging to this group
@@ -205,5 +205,9 @@ class MoveGroup(private val game: SpaceInvaders){
      */
     fun getGroupHeight(): Float {
         return group_height
+    }
+
+    open fun decrementStepDelay() {
+        return //TODO: implement
     }
 }
