@@ -8,7 +8,6 @@ data class Pos(var x: Float, var y: Float) {
             return MoveResult(dest, distance - distance_to_dest, true, true)
 
         val movement_vec = direction.multiScalar(distance)
-        println("Start: ($x, $y) Dest: (${dest.x}, ${dest.y}) Distance: $distance_to_dest Direction $direction Movement_VEC $movement_vec")
         return MoveResult(this.add(movement_vec), 0F, true, false)
     }
 

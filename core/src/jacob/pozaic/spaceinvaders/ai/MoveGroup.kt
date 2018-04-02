@@ -70,9 +70,9 @@ open class MoveGroup(private val game: SpaceInvaders){
         // After a segment of movements is completed it can be removed
         if(segment_complete) {
             movement.removeAt(0)
-            if(movement.size > 0)
-                movement[0].start(group_center)
-            else getInvaders().forEach{ invader -> game.removeInvader(invader) }
+            moveGroupToStart()
+            if(movement.size == 0)
+                getInvaders().forEach{ invader -> game.removeInvader(invader) }
         }
     }
 

@@ -67,9 +67,15 @@ class WaveManager(private val game: SpaceInvaders) {
 
         val patterns = listOf(move_pattern_1, move_pattern_2, move_pattern_3, move_pattern_4)
 
+        var toggle_invader = false
         patterns.forEach { pattern ->
             var invader_type = EntityType.FIGHTER
             for(y in 0..1) {
+                if(toggle_invader) {
+                    invader_type = EntityType.BOMBER
+                    toggle_invader = false
+                } else toggle_invader = true
+
                 val tex_default = game.entity(invader_type).textures[0]
                 val texture_width = tex_default.regionWidth * texture_scale
                 val texture_height = tex_default.regionHeight * texture_scale
@@ -101,11 +107,25 @@ class WaveManager(private val game: SpaceInvaders) {
         // Second group
         val move_across_2 = LinearMove()
         with(move_across_2) {
-            start(Pos(getOffScreenRight(move_pattern_2), 325F))
-            end(Pos(getOffScreenLeft(move_pattern_2), 325F))
+            start(Pos(getOffScreenRight(move_pattern_2), 200F))
+            end(Pos(screen.width / 2, 200F))
+            setContinious(30F)
+        }
+        val move_up_2 = LinearMove()
+        with(move_up_2) {
+            start(Pos(screen.width / 2, 200F))
+            end(Pos(screen.width / 2, 250F))
+            setContinious(10F)
+        }
+        val move_across_2_2 = LinearMove()
+        with(move_across_2_2) {
+            start(Pos(screen.width / 2, 250F))
+            end(Pos(getOffScreenLeft(move_pattern_2), 250F))
             setContinious(30F)
         }
         move_pattern_2.addMovement(move_across_2)
+        move_pattern_2.addMovement(move_up_2)
+        move_pattern_2.addMovement(move_across_2_2)
         move_pattern_2.moveGroupToStart()
 
         // Third group
