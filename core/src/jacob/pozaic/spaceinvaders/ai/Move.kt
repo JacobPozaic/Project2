@@ -30,6 +30,9 @@ abstract class Move {
     protected var step_dist: Float = 0F
     protected var step_speed: Float = 0F
 
+    // The acceptable range for reaching a destination
+    protected var acceptable_range = 0F
+
     // Sets the start and end positions of the movement
     fun start(start: Pos){
         this.start = start
@@ -37,6 +40,10 @@ abstract class Move {
 
     fun end(end: Pos) {
         this.end = end
+    }
+
+    fun acceptableRange(range: Float) {
+        this.acceptable_range = range
     }
 
     // Sets the type of movement that will be used
@@ -97,6 +104,10 @@ abstract class Move {
      */
     protected open fun stepDistance(current_pos: Pos, group_center: Pos, last_step_time: Long): MoveResult{
         return MoveResult(current_pos, 0F, true, false)
+    }
+
+    protected fun withinRange(point: Pos, dest: Pos, range: Float): Boolean {
+        return point.distanceTo(dest) <= range
     }
 
     // Sets parameters for movement (only use these if the movement pattern needs to change after creation)

@@ -108,24 +108,39 @@ class WaveManager(private val game: SpaceInvaders) {
         val move_across_2 = LinearMove()
         with(move_across_2) {
             start(Pos(getOffScreenRight(move_pattern_2), 200F))
-            end(Pos(screen.width / 2, 200F))
+            end(Pos(600F, 200F))
             setContinious(30F)
         }
         val move_up_2 = LinearMove()
         with(move_up_2) {
-            start(Pos(screen.width / 2, 200F))
-            end(Pos(screen.width / 2, 250F))
-            setContinious(10F)
+            start(Pos(600F, 200F))
+            end(Pos(400F, 400F))
+            setContinious(30F)
         }
         val move_across_2_2 = LinearMove()
         with(move_across_2_2) {
-            start(Pos(screen.width / 2, 250F))
-            end(Pos(getOffScreenLeft(move_pattern_2), 250F))
+            start(Pos(400F, 400F))
+            end(Pos(200F, 400F))
+            setContinious(30F)
+        }
+        val move_down_2 = LinearMove()
+        with(move_down_2) {
+            start(Pos(200F, 400F))
+            end(Pos(200F, 200F))
+            setContinious(30F)
+        }
+        val move_across_2_3 = LinearMove()
+        with(move_across_2_3) {
+            start(Pos(200F, 200F))
+            end(Pos(getOffScreenLeft(move_pattern_2), 200F))
             setContinious(30F)
         }
         move_pattern_2.addMovement(move_across_2)
         move_pattern_2.addMovement(move_up_2)
         move_pattern_2.addMovement(move_across_2_2)
+        move_pattern_2.addMovement(move_down_2)
+        move_pattern_2.addMovement(move_across_2_3)
+        move_pattern_2.setAcceptableRange(1F)
         move_pattern_2.moveGroupToStart()
 
         // Third group
@@ -169,6 +184,6 @@ class WaveManager(private val game: SpaceInvaders) {
         if(current_wave != null) current_wave!!.forEach { wave -> wave.decrementStepDelay() }
     }
 
-    private fun getOffScreenLeft(move_pattern: MoveGroup) = screen.left - move_pattern.getGroupWidth() - 20
-    private fun getOffScreenRight(move_pattern: MoveGroup) = screen.right + move_pattern.getGroupWidth() + 20
+    private fun getOffScreenLeft(move_pattern: MoveGroup) = screen.left - (move_pattern.getGroupWidth() + 2 * texture_width)
+    private fun getOffScreenRight(move_pattern: MoveGroup) = screen.right + (move_pattern.getGroupWidth() + 2 * texture_width)
 }

@@ -83,6 +83,10 @@ open class MoveGroup(private val game: SpaceInvaders){
         this.movement.add(movement)
     }
 
+    fun setAcceptableRange(range: Float) {
+        movement.forEach { movement -> movement.acceptableRange(range) }
+    }
+
     /**
      * Move the group to the start position of the current move component and recalculate the group bounds
      */

@@ -18,11 +18,16 @@ class LinearMove: Move() {
 
     // Set a continious movement pattern (no delay on steps)
     override fun continious(current_pos: Pos, group_center: Pos, delta: Float): MoveResult {
+        if(withinRange(group_center, end, acceptable_range))
+            return MoveResult(current_pos, 0F, true, true)
         return current_pos.moveToward(end, end.sub(group_center).norm(), step_speed * delta)
     }
 
     // Set a step by distance movement pattern (step x distance in pixels every time y time has passed since the last step)
     override fun stepDistance(current_pos: Pos, group_center: Pos, last_step_time: Long): MoveResult {
+        if(withinRange(group_center, end, acceptable_range))
+            return MoveResult(current_pos, 0F, true, true)
+
         // Moving by pixels per step
         if(TimeUtils.timeSinceMillis(last_step_time) >= step_freq)
             return current_pos.moveToward(end, end.sub(group_center).norm(), step_dist)

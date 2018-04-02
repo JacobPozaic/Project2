@@ -3,7 +3,7 @@ package jacob.pozaic.spaceinvaders.ai
 data class Pos(var x: Float, var y: Float) {
     fun moveToward(dest: Pos, direction: Pos, distance: Float): MoveResult {
         // if the step would go further than destination then just go to the destination
-        val distance_to_dest = distanceTo(dest).toFloat()
+        val distance_to_dest = this.distanceTo(dest).toFloat()
         if(distance_to_dest <= distance)
             return MoveResult(dest, distance - distance_to_dest, true, true)
 

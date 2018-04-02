@@ -92,20 +92,26 @@ private fun gamePlayLogic() {
 
     // Update the list of invaders
     if(invadersUpdated) {
-        stg_game.actors.filter { actor -> actor is Invader }
-                .forEach { actor -> actor.remove() }
+        stg_game.actors.filter { actor -> actor is Invader }.forEach { actor -> actor.remove() }
         game!!.getInvaders().forEach { invader -> stg_game.addActor(invader) }
 
         val size = stg_game.actors.filter { actor -> actor is Invader }.size - game!!.getInvaders().size
-        for(i in 0..size){
-            WM!!.reduceMoveDelay()
-        }
+        for(i in 0..size) WM!!.reduceMoveDelay()
 
         invadersUpdated = false
     }
 
     // Update the wave and move all Invaders, done after updating what invaders are on screen so prevent movement being affect by removed invaders
     WM!!.update()
+
+    /*// Remove any invaders that are off screen
+    game!!.getInvaders().forEach { invader ->
+        val c = invader.getCenter()
+        if(c.x < screen.left - texture_width || c.x > screen.right + texture_width
+                || c.y < -texture_height || c.y > screen.height + texture_height) {
+            game!!.removeInvader(invader)
+        }
+    }*/
 
     // Invader shoot projectiles
     val num_invaders = game!!.getInvaders().size
