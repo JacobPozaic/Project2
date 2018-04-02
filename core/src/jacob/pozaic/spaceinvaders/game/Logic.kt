@@ -104,15 +104,6 @@ private fun gamePlayLogic() {
     // Update the wave and move all Invaders, done after updating what invaders are on screen so prevent movement being affect by removed invaders
     WM!!.update()
 
-    /*// Remove any invaders that are off screen
-    game!!.getInvaders().forEach { invader ->
-        val c = invader.getCenter()
-        if(c.x < screen.left - texture_width || c.x > screen.right + texture_width
-                || c.y < -texture_height || c.y > screen.height + texture_height) {
-            game!!.removeInvader(invader)
-        }
-    }*/
-
     // Invader shoot projectiles
     val num_invaders = game!!.getInvaders().size
     if(num_invaders > 0) {
