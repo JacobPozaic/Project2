@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.entity.Invader
 import jacob.pozaic.spaceinvaders.game.SpaceInvaders
-import jacob.pozaic.spaceinvaders.game.screen
 
 /**
  * Handles moving groups of Entities at a time
@@ -12,9 +11,6 @@ import jacob.pozaic.spaceinvaders.game.screen
 open class MoveGroup(private val game: SpaceInvaders){
     // The list of movements to be done
     private val movement = ArrayList<Move>()
-
-    // Should the MoveGroup continue its current move pattern until it reaches an edge instead of the end point
-    private var touch_edge_to_continue = false
 
     // The bounds of the group
     private var minX = Float.MAX_VALUE
@@ -26,6 +22,10 @@ open class MoveGroup(private val game: SpaceInvaders){
     private var group_height = maxY - minY
     private var group_center = Pos(minX + group_width / 2, minY + group_height / 2)
 
+    var decrement_duration_seconds = 0F
+    var decrement_distance = 0F
+    var decrement_pixels_per_seconds = 0F
+
     /**
      * Move the group
      */
@@ -36,80 +36,24 @@ open class MoveGroup(private val game: SpaceInvaders){
         // Has the current move component been completed
         var segment_complete = false
 
-        // A list of invaders belonging to this move group and currently on screen
-        val invaders = getInvaders()
-
         // The current move component
         val move_segment = movement[0]
 
         // The time since the last frame, this is used here so that iterating through each invader doesn't desync positions over time
         val delta = Gdx.graphics.deltaTime
 
-        // If the edge should be reached before starting the next movement
-        if(touch_edge_to_continue && invaders.isNotEmpty()) {
-            // The invader closest to the edge that the group is travelling towards
-            var edge_invader = invaders[0]
-
-            // Don't bother calculating a bunch of stuff if it hasn't been long enough to move anyways
-            if(!move_segment.nextPosition(edge_invader.getCenter(), edge_invader.getCenter().sub(group_center), delta, edge_invader.last_step_time).success) return
-
-            // Check if the group is moving to the right or to the left, and set the appropriate edge_invader
-            if(invaders[0].getCenter().x < move_segment.end.x) {
-                // Moving right
-                var maxX = invaders[0].getCenter().x
-                invaders.forEach { invader ->
-                    if(invader.getCenter().x > maxX) {
-                        maxX = invader.getCenter().x
-                        edge_invader = invader
-                    }
-                }
-
-                val group_offset = edge_invader.getCenter().sub(group_center)
-                val pos = edge_invader.getCenter()
-                val test_move = move_segment.nextPosition(pos, group_offset, delta, edge_invader.last_step_time)
-
-                if(test_move.pos.add(group_offset).x >= screen.right) segment_complete = true
-                //else if(test_move.reached_target) move_segment.end(Pos(move_segment.end.x, move_segment.end.y))
-            } else if(invaders[0].getCenter().x > move_segment.end.x) {
-                // Moving left
-                var minX = invaders[0].getCenter().x
-                invaders.forEach { invader ->
-                    if(invader.getCenter().x < minX) {
-                        minX = invader.getCenter().x
-                        edge_invader = invader
-                    }
-                }
-
-                val group_offset = edge_invader.getCenter().sub(group_center)
-                val pos = edge_invader.getCenter()
-                val test_move = move_segment.nextPosition(pos, group_offset, delta, edge_invader.last_step_time)
-
-                if(test_move.pos.add(group_offset).x <= screen.left) segment_complete = true
-                //else if(test_move.reached_target) move_segment.end(Pos(move_segment.end.x, move_segment.end.y))
-            }
-        }
-
-        var dist: Pos? = null
+        calculateGroup()
 
         // Move each invader in the move group
         val last_step_time = TimeUtils.millis()
-        invaders.forEach { invader ->
-            val group_offset = invader.getCenter().sub(group_center)
-            val pos = invader.getCenter()
-            val result = move_segment.nextPosition(pos, group_offset, delta, invader.last_step_time)
-
-            if(dist == null) dist = result.pos.sub(pos)
+        getInvaders().forEach { invader ->
+            val result = move_segment.nextPosition(invader.getCenter(), group_center, delta, invader.last_step_time)
 
             if(result.success) {
                 invader.last_step_time = last_step_time
-                if(result.reached_target) {
-                    segment_complete = true
-                }
-                if (result.remainder == 0F) {
-                    invader.setPos(result.pos.add(group_offset))
-                    return@forEach
-                }
-                if (movement.size > 1) {
+                invader.setPos(result.pos)
+                if(result.reached_target) segment_complete = true
+                if (result.remainder != 0F && movement.size > 1) {
                     when (movement[1].remainder_handling) {
                         Remainder.IGNORE -> return@forEach
                         Remainder.PASS_BY_DISTANCE -> {
@@ -123,13 +67,12 @@ open class MoveGroup(private val game: SpaceInvaders){
             }
         }
 
-        if(dist != null) updateGroupBounds(dist!!)
-
         // After a segment of movements is completed it can be removed
         if(segment_complete) {
             movement.removeAt(0)
             if(movement.size > 0)
                 movement[0].start(group_center)
+            else getInvaders().forEach{ invader -> game.removeInvader(invader) }
         }
     }
 
@@ -152,13 +95,6 @@ open class MoveGroup(private val game: SpaceInvaders){
     }
 
     /**
-     * Self explanitory
-     */
-    fun setTouchEdgeToContinue(touch: Boolean) {
-        touch_edge_to_continue = touch
-    }
-
-    /**
      * Gets a list of all invaders that belong to this move group
      */
     protected fun getInvaders(): List<Invader> = game.getInvaders().filter { invader -> invader.move_group == this }
@@ -166,48 +102,52 @@ open class MoveGroup(private val game: SpaceInvaders){
     /**
      * Calculates the bounds of the region occupied by invaders belonging to this group
      */
-    private fun calculateGroup() {
+    fun calculateGroup() {
         minX = Float.MAX_VALUE
         minY = Float.MAX_VALUE
         maxX = Float.MIN_VALUE
         maxY = Float.MIN_VALUE
 
-        getInvaders().forEach {
-            val pos = it.getCenter()
-            if(pos.x < minX) minX = pos.x
-            else if(pos.x > maxX) maxX = pos.x
-            if(pos.y < minY) minY = pos.y
-            else if(pos.y > maxY) maxY = pos.y
+        val invaders = getInvaders()
+        if(invaders.size == 1) {
+            val center = invaders[0].getCenter()
+            minX = center.x
+            maxX = center.x
+            minY = center.y
+            maxY = center.y
+            group_width = 1F
+            group_height = 1F
+            group_center = center
+        } else {
+            invaders.forEach {
+                val pos = it.getCenter()
+                if(pos.x < minX) minX = pos.x
+                else if(pos.x > maxX) maxX = pos.x
+                if(pos.y < minY) minY = pos.y
+                else if(pos.y > maxY) maxY = pos.y
+            }
+            group_width = maxX - minX
+            group_height = maxY - minY
+            group_center = Pos(minX + group_width / 2, minY + group_height / 2)
         }
-
-        group_width = maxX - minX
-        group_height = maxY - minY
-        group_center = Pos(minX + group_width / 2, minY + group_height / 2)
     }
 
-    private fun updateGroupBounds(dist: Pos) {
-        minX += dist.x
-        maxX += dist.x
-        minY += dist.y
-        maxY += dist.y
-        group_center = Pos(minX + group_width / 2, minY + group_height / 2)
-    }
+    fun getGroupWidth() = group_width
 
-    /**
-     * Gets the width of the move group
-     */
-    fun getGroupWidth(): Float {
-        return group_width
-    }
-
-    /**
-     * Gets the height of the move group
-     */
-    fun getGroupHeight(): Float {
-        return group_height
-    }
+    fun getGroupHeight() = group_height
 
     open fun decrementStepDelay() {
-        return //TODO: implement
+        if(movement.size > 0)
+            movement[0].setStepFrequency(movement[0].getStepFrequency() - decrement_duration_seconds)
+    }
+
+    open fun decrementStepDistance() {
+        if(movement.size > 0)
+            movement[0].setStepDistance(movement[0].getStepDistance() - decrement_distance)
+    }
+
+    open fun decrementStepSpeed() {
+        if(movement.size > 0)
+            movement[0].setStepSpeed(movement[0].getStepSpeed() - decrement_pixels_per_seconds)
     }
 }

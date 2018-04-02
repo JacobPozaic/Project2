@@ -20,11 +20,11 @@ class WaveManager(private val game: SpaceInvaders) {
         if(game.getInvaders().size == 0) {
             wave_number++
             current_wave = when(wave_number % 5){
-                1 -> classicWave()
-                2 -> classicWave()
-                3 -> classicWave()
-                4 -> classicWave()
-                5 -> classicWave()
+                1 -> if(play_classic) classicWave() else defaultWave()
+                2 -> if(play_classic) classicWave() else defaultWave()
+                3 -> if(play_classic) classicWave() else defaultWave()
+                4 -> if(play_classic) classicWave() else defaultWave()
+                5 -> if(play_classic) classicWave() else defaultWave()
                 else -> return // This will never happen
             }
         }
@@ -60,120 +60,95 @@ class WaveManager(private val game: SpaceInvaders) {
 
     private fun defaultWave(): List<MoveGroup> {
         // Create the MoveGroup for the wave
-        val move_pattern = MoveGroup(game)
+        val move_pattern_1 = MoveGroup(game)
+        val move_pattern_2 = MoveGroup(game)
+        val move_pattern_3 = MoveGroup(game)
+        val move_pattern_4 = MoveGroup(game)
 
-        var invader_type = EntityType.FIGHTER
-        for(y in 0..4) {
-            // Depending on what row, different invaders will spawn
-            when(y){
-                0, 1, 2 -> invader_type = EntityType.BOMBER
-                3, 4    -> invader_type = EntityType.FIGHTER
+        val patterns = listOf(move_pattern_1, move_pattern_2, move_pattern_3, move_pattern_4)
+
+        patterns.forEach { pattern ->
+            var invader_type = EntityType.FIGHTER
+            for(y in 0..1) {
+                val tex_default = game.entity(invader_type).textures[0]
+                val texture_width = tex_default.regionWidth * texture_scale
+                val texture_height = tex_default.regionHeight * texture_scale
+
+                for(x in 0..1) {
+                    // Calculate the position of the new Invader in scaled space
+                    val posX = (texture_width * x) + (spacing_offset * x)
+                    val posY = (texture_height * y) + (spacing_offset * 0.5F * y)
+                    // Create a new invader
+                    val invader = Invader(invader_type, posX, posY, texture_scale, pattern)
+                    invader.can_touch_ground = false
+                    game.addInvader(invader)
+                }
             }
-
-            val tex_default = game.entity(invader_type).textures[0]
-            val texture_width = tex_default.regionWidth * texture_scale
-            val texture_height = tex_default.regionHeight * texture_scale
-
-            for(x in 0..10) {
-                // Calculate the position of the new Invader in scaled space
-                val posX = (texture_width * x) + (spacing_offset * x) + screen.x_offset
-                val posY = screen.height - texture_height - screen.y_offset - ((texture_height * y) + (spacing_offset * 0.5F * y))
-                // Create a new invader
-                val invader = Invader(invader_type, posX, posY, texture_scale, move_pattern)
-                game.addInvader(invader)
-            }
+            pattern.calculateGroup()
         }
 
         // Add components of the MoveGroup
+        // First group
         val move_across_1 = LinearMove()
-        val g_width = move_pattern.getGroupWidth() / 2
-        val g_height = move_pattern.getGroupHeight() / 2
         with(move_across_1) {
-            start(adjustPoint(Pos(screen.left, 350F), g_width, g_height))
-            end(adjustPoint(Pos(screen.right, 350F), g_width, g_height))
-            setStepByDistance(0.5F, 10F)
+            start(Pos(getOffScreenLeft(move_pattern_1), 350F))
+            end(Pos(getOffScreenRight(move_pattern_1), 350F))
+            setContinious(20F)
         }
-        move_pattern.addMovement(move_across_1)
+        move_pattern_1.addMovement(move_across_1)
+        move_pattern_1.moveGroupToStart()
 
-        val move_down_1 = LinearMove()
-        with(move_down_1){
-            start(adjustPoint(Pos(screen.right, move_across_1.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.right, move_across_1.end.y - 20), g_width, g_height))
-            setStepByDistance(0.5F, 20F)
-        }
-        move_pattern.addMovement(move_down_1)
-
+        // Second group
         val move_across_2 = LinearMove()
         with(move_across_2) {
-            start(adjustPoint(Pos(screen.right, move_down_1.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.left, move_down_1.end.y), g_width, g_height))
-            setStepByDistance(0.5F, 10F)
+            start(Pos(getOffScreenRight(move_pattern_2), 325F))
+            end(Pos(getOffScreenLeft(move_pattern_2), 325F))
+            setContinious(30F)
         }
-        move_pattern.addMovement(move_across_2)
+        move_pattern_2.addMovement(move_across_2)
+        move_pattern_2.moveGroupToStart()
 
-        val move_down_2 = LinearMove()
-        with(move_down_2){
-            start(adjustPoint(Pos(screen.left, move_across_2.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.left, move_across_2.end.y - 20), g_width, g_height))
-            setStepByDistance(0.5F, 20F)
+        // Third group
+        val wait_3 = LinearMove()
+        with(wait_3) {
+            start(Pos(getOffScreenLeft(move_pattern_3), 300F))
+            end(Pos(getOffScreenRight(move_pattern_3), 300F))
+            setStationary(3F)
         }
-        move_pattern.addMovement(move_down_2)
-
         val move_across_3 = LinearMove()
         with(move_across_3) {
-            start(adjustPoint(Pos(screen.left, move_down_2.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.right, move_down_2.end.y), g_width, g_height))
-            setStepByDistance(0.5F, 10F)
+            start(wait_3.start)
+            end(wait_3.end)
+            setStepByDistance(1F, 35F)
         }
-        move_pattern.addMovement(move_across_3)
+        move_pattern_3.addMovement(wait_3)
+        move_pattern_3.addMovement(move_across_3)
+        move_pattern_3.moveGroupToStart()
 
-        val move_down_3 = LinearMove()
-        with(move_down_3){
-            start(adjustPoint(Pos(screen.right, move_across_3.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.right, move_across_3.end.y - 20), g_width, g_height))
-            setStepByDistance(0.5F, 20F)
+        // Fourth group
+        val wait_4 = LinearMove()
+        with(wait_4) {
+            start(Pos(getOffScreenRight(move_pattern_4), 250F))
+            end(Pos(getOffScreenLeft(move_pattern_4), 250F))
+            setStationary(5F)
         }
-        move_pattern.addMovement(move_down_3)
-
         val move_across_4 = LinearMove()
         with(move_across_4) {
-            start(adjustPoint(Pos(screen.right, move_down_3.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.left, move_down_3.end.y), g_width, g_height))
-            setStepByDistance(0.5F, 10F)
+            start(wait_4.start)
+            end(wait_4.end)
+            setContinious(40F)
         }
-        move_pattern.addMovement(move_across_4)
+        move_pattern_4.addMovement(wait_4)
+        move_pattern_4.addMovement(move_across_4)
+        move_pattern_4.moveGroupToStart()
 
-        val move_down_4 = LinearMove()
-        with(move_down_4){
-            start(adjustPoint(Pos(screen.left, move_across_4.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.left, move_across_4.end.y - 20), g_width, g_height))
-            setStepByDistance(0.5F, 20F)
-        }
-        move_pattern.addMovement(move_down_4)
-
-        val move_across_5 = LinearMove()
-        with(move_across_5) {
-            start(adjustPoint(Pos(screen.left, move_down_4.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.right, move_down_4.end.y), g_width, g_height))
-            setStepByDistance(0.5F, 10F)
-        }
-        move_pattern.addMovement(move_across_5)
-
-        val move_down_5 = LinearMove()
-        with(move_down_5){
-            start(adjustPoint(Pos(screen.right, move_across_5.end.y), g_width, g_height))
-            end(adjustPoint(Pos(screen.right, move_across_5.end.y - 20), g_width, g_height))
-            setStepByDistance(0.5F, 20F)
-        }
-        move_pattern.addMovement(move_down_5)
-
-        move_pattern.setTouchEdgeToContinue(true)
-        move_pattern.moveGroupToStart()
-        move_pattern.calculateGroup()
-        return listOf(move_pattern)
+        return patterns
     }
 
     fun reduceMoveDelay() {
         if(current_wave != null) current_wave!!.forEach { wave -> wave.decrementStepDelay() }
     }
+
+    private fun getOffScreenLeft(move_pattern: MoveGroup) = screen.left - move_pattern.getGroupWidth() - 20
+    private fun getOffScreenRight(move_pattern: MoveGroup) = screen.right + move_pattern.getGroupWidth() + 20
 }

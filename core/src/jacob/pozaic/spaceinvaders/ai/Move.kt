@@ -1,7 +1,5 @@
 package jacob.pozaic.spaceinvaders.ai
 
-import jacob.pozaic.spaceinvaders.game.screen
-
 /**
  * A data class that stores relevant parameters to a movement.
  *
@@ -32,8 +30,6 @@ abstract class Move {
     protected var step_dist: Float = 0F
     protected var step_speed: Float = 0F
 
-    //TODO: setDelayStart
-
     // Sets the start and end positions of the movement
     fun start(start: Pos){
         this.start = start
@@ -43,27 +39,13 @@ abstract class Move {
         this.end = end
     }
 
-    /**
-     * Adjusts a position for a group's start and end so that the group remains inside the bounds of the screen
-     */
-    fun adjustPoint(position: Pos, group_width: Float, group_height: Float): Pos {
-        if(position.x < group_width + screen.x_offset)
-            position.x = group_width + screen.x_offset
-        else if(position.x > screen.width - group_width - screen.x_offset)
-            position.x = screen.width - group_width - screen.x_offset
-        if(position.y < group_height + screen.y_offset)
-            position.y = group_height + screen.y_offset
-        else if(position.y > screen.height - group_height - screen.y_offset)
-            position.y = screen.height - group_height - screen.y_offset
-        return position
-    }
-
     // Sets the type of movement that will be used
     /**
      * Sets the movement to stationary, preventing the group from moving at all
      */
-    fun setStationary(){
+    fun setStationary(seconds_to_wait: Float){
         step_type = StepType.STATIONARY
+        this.step_freq = seconds_to_wait * 1000
     }
 
     /**
@@ -86,11 +68,11 @@ abstract class Move {
     /**
      * Calculates the next movement to be made, returning a MoveResult with the destination position
      */
-    fun nextPosition(current_pos: Pos, group_offset: Pos, delta: Float, last_step_time: Long): MoveResult {
+    fun nextPosition(current_pos: Pos, group_center: Pos, delta: Float, last_step_time: Long): MoveResult {
         return when(step_type){
-            StepType.STATIONARY -> stationary(current_pos, group_offset, delta)
-            StepType.CONTINIOUS -> continious(current_pos, group_offset, delta)
-            StepType.STEP_DISTANCE -> stepDistance(current_pos, group_offset, last_step_time)
+            StepType.STATIONARY -> stationary(current_pos, group_center, delta)
+            StepType.CONTINIOUS -> continious(current_pos, group_center, delta)
+            StepType.STEP_DISTANCE -> stepDistance(current_pos, group_center, last_step_time)
             else -> MoveResult(current_pos, 0F, false, false)
         }
     }
@@ -99,21 +81,21 @@ abstract class Move {
     /**
      * Overridable function for how to handle stationary movement
      */
-    protected open fun stationary(current_pos: Pos, group_offset: Pos, delta: Float): MoveResult {
+    protected open fun stationary(current_pos: Pos, group_center: Pos, delta: Float): MoveResult {
         return MoveResult(current_pos, 0F, true, false)
     }
 
     /**
      * Overridable function for how to handle continious movement
      */
-    protected open fun continious(current_pos: Pos, group_offset: Pos, delta: Float): MoveResult{
+    protected open fun continious(current_pos: Pos, group_center: Pos, delta: Float): MoveResult{
         return MoveResult(current_pos, 0F, true, false)
     }
 
     /**
      * Overridable function for how to handle step by distance movement
      */
-    protected open fun stepDistance(current_pos: Pos, group_offset: Pos, last_step_time: Long): MoveResult{
+    protected open fun stepDistance(current_pos: Pos, group_center: Pos, last_step_time: Long): MoveResult{
         return MoveResult(current_pos, 0F, true, false)
     }
 
@@ -125,6 +107,8 @@ abstract class Move {
         step_freq = seconds * 1000
     }
 
+    fun getStepFrequency() = step_freq / 1000F
+
     /**
      * Updates the distance that should be traveled each frame in continious movement
      */
@@ -132,10 +116,14 @@ abstract class Move {
         step_dist = pixels
     }
 
+    fun getStepDistance() = step_dist
+
     /**
      * Updates the distance per second traveled in step by distance movements
      */
     fun setStepSpeed(pixels_per_second: Float){
         step_speed = pixels_per_second
     }
+
+    fun getStepSpeed() = step_speed
 }

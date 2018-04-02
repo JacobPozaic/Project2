@@ -1,9 +1,9 @@
 package jacob.pozaic.spaceinvaders.entity
 
-import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.TimeUtils
 import jacob.pozaic.spaceinvaders.ai.Pos
 import jacob.pozaic.spaceinvaders.game.EntityParams
@@ -12,8 +12,8 @@ import jacob.pozaic.spaceinvaders.game.game
 
 abstract class Entity (
         val type: EntityType,
-        posX: Float,
-        posY: Float,
+        private var posX: Float,
+        private var posY: Float,
         scaleWidth: Float,
         scaleHeight: Float): Actor() {
 
@@ -25,10 +25,10 @@ abstract class Entity (
     init {
         sprite = Sprite(getParameters().textures[0])
         sprite!!.setScale(scaleWidth, scaleHeight)
-        sprite!!.setOriginCenter()
         this.setScale(scaleWidth, scaleHeight)
-        setPos(posX, posY)
-        this.setOrigin(0F, 0F)
+        this.setPos(posX, posY)
+        sprite!!.setOriginCenter()
+        this.setOrigin(sprite!!.originX, sprite!!.originY)
     }
 
     open fun setPos(pos: Pos) {
@@ -36,7 +36,9 @@ abstract class Entity (
     }
 
     open fun setPos(x: Float, y: Float) {
-        sprite!!.setPosition(x - (sprite!!.width / 2), y - (sprite!!.height / 2))
+        posX = x
+        posY = y
+        sprite!!.setCenter(x, y)
         setBounds(sprite!!.x, sprite!!.y, sprite!!.width, sprite!!.height)
     }
 
@@ -56,10 +58,7 @@ abstract class Entity (
         sprite!!.draw(batch)
     }
 
-    fun getCenter(): Pos = Pos(
-            sprite!!.x + (sprite!!.width / 2),
-            sprite!!.y + (sprite!!.height / 2)
-    )
+    fun getCenter(): Pos = Pos(posX, posY)
 
     fun getRect(): Rectangle = this.sprite!!.boundingRectangle
 

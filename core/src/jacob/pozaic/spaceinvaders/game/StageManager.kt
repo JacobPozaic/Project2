@@ -122,7 +122,17 @@ internal fun startMenuOptions() {
             }
         }
     })
-    table.add(btn_use_acc).width(280F).height(100F).pad(5F)
+    table.add(btn_use_acc).width(280F).height(100F).pad(5F).row()
+
+    val btn_exp_mode = TextButton("Non-Classic mode", btn_use_acc_style)
+    btn_exp_mode.addListener(object : ChangeListener() {
+        override fun changed(event: ChangeEvent?, actor: Actor?) {
+            if (btn_exp_mode.isChecked){
+                play_classic = false
+            }
+        }
+    })
+    table.add(btn_exp_mode).width(280F).height(100F).pad(5F)
 
     if(draw_arrows) {
         btn_use_acc.isDisabled = true

@@ -15,7 +15,6 @@ import jacob.pozaic.spaceinvaders.entity.Player
 import jacob.pozaic.spaceinvaders.entity.Projectile
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 internal data class Screen(
         var width: Float,
@@ -158,6 +157,9 @@ internal var shouldRestart = false
 // Disable tilt input and draw arrows to move the player instead
 internal var draw_arrows = false
 
+// Play classic mode or experimental mode
+internal var play_classic = true
+
 // Game stats
 internal var player_lives = 3
 internal var player_score = 0
@@ -223,7 +225,6 @@ class SpaceInvadersInstanceMan : ApplicationAdapter() {
         game!!.create()
     }
 }
-
 
 class SpaceInvaders() {
     // A list of each invader currently on screen
